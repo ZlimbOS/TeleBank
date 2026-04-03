@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Winter Ultimate x100</title>
+    <title>TeleBank | Winter Ultimate x200</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
@@ -13,10 +13,8 @@
             user-select: none; overflow: hidden; 
         }
 
-        /* СНЕГ - теперь он не мешает кликать */
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 
-        /* Кнопка промокода в углу */
         .promo-top {
             position: absolute; top: 20px; right: 20px;
             background: #3b82f6; color: white; padding: 10px 18px;
@@ -33,7 +31,6 @@
 
         .money-val { font-size: 2.8rem; font-weight: 900; color: var(--p); margin: 5px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
 
-        /* Монета */
         .coin-btn { 
             width: 150px; height: 150px; 
             background: radial-gradient(circle, #ffd700, #ff8c00); 
@@ -75,7 +72,7 @@
     <div class="coin-btn" id="main-coin">🪙</div>
     
     <div id="shop">
-        <p style="font-size: 0.9rem;">ДОХОД: <span id="tap-power" style="color: var(--p)">100</span> ₽/ТАП</p>
+        <p id="tap-power-info" style="font-size: 0.9rem;">ДОХОД: <span id="tap-power" style="color: var(--p)">100</span> ₽</p>
         <div id="upgrade-area"></div>
         <div id="rebirth-area"></div>
         <div id="max-info" style="display:none; color: gold; font-weight:bold; margin-top:15px;">MAX POWER REACHED 👑</div>
@@ -84,29 +81,36 @@
 
 <script>
     // 1. ДАННЫЕ ИГРЫ
-    const POWERS = [100, 200, 300, 400, 1000, 1500, 3000, 15000, 35000];
-    const COSTS = [500, 1500, 5000, 10000, 50000, 150000, 1000000, 2500000];
+    const POWERS = [100, 200, 300, 400, 1000, 1500, 3000, 15000, 35000, 2000000]; // 10-й лвл: 2 млн
+    const COSTS = [500, 1500, 5000, 10000, 50000, 150000, 1000000, 2500000, 50000000]; // 10-й стоит 50 млн
     const REBIRTHS = [
         { c: 15000, m: 2, n: "x2" },
         { c: 50000, m: 3, n: "x3" },
         { c: 200000, m: 4, n: "x4" },
         { c: 10000000, m: 10, n: "x10" },
-        { c: 100000000, m: 100, n: "ULTRA x100" }
+        { c: 100000000, m: 100, n: "ULTRA x100" },
+        { c: 250000000, m: 200, n: "MYTHIC x200" } // Новый ребирх
     ];
 
     let state = { b: 0, l: 0, m: 1, p: false };
 
-    // Загрузка
-    const saved = localStorage.getItem('tb_ultimate_final_v1');
-    if (saved) state = JSON.parse(saved);
+    const saved = localStorage.getItem('tb_winter_v2');
+    if (saved) state = Object.assign(state, JSON.parse(saved));
 
-    // 2. СИСТЕМА ТАПА (ФИКС)
+    // 2. ПАССИВНЫЙ ДОХОД (на 10 уровне)
+    setInterval(() => {
+        if (state.l >= 9) {
+            state.b += POWERS[9] * state.m;
+            refresh();
+        }
+    }, 1000);
+
+    // 3. ТАПЫ
     const coin = document.getElementById('main-coin');
     coin.onclick = function(e) {
         let gain = POWERS[state.l] * state.m;
         state.b += gain;
         
-        // Анимация +цифры
         const anim = document.createElement('div');
         anim.className = 'plus';
         anim.innerText = "+" + gain.toLocaleString();
@@ -118,8 +122,8 @@
         refresh();
     };
 
-    // 3. МАГАЗИН И РЕБИРТХИ
-    function buyUpgrade() {
+    // 4. ФУНКЦИИ МАГАЗИНА
+    window.buyUpgrade = function() {
         if (state.b >= COSTS[state.l]) {
             state.b -= COSTS[state.l];
             state.l++;
@@ -127,14 +131,13 @@
         }
     }
 
-    function doRebirth(idx) {
+    window.doRebirth = function(idx) {
         if (state.b >= REBIRTHS[idx].c) {
             state.b = 0; state.l = 0; state.m = REBIRTHS[idx].m;
             refresh();
         }
     }
 
-    // 4. ПРОМОКОД
     document.getElementById('promo-btn').onclick = function() {
         if (state.p) return alert("Промокод уже использован!");
         let code = prompt("Введите промокод:");
@@ -146,22 +149,30 @@
         } else if (code !== null) { alert("Неверный код!"); }
     };
 
-    // 5. ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+    // 5. ОБНОВЛЕНИЕ ЭКРАНА
     function refresh() {
         document.getElementById('balance').innerText = Math.floor(state.b).toLocaleString();
-        document.getElementById('tap-power').innerText = (POWERS[state.l] * state.multVal()).toLocaleString();
         document.getElementById('mult-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
+        
+        const tapPowerText = document.getElementById('tap-power');
+        if (state.l < 9) {
+            tapPowerText.innerText = (POWERS[state.l] * state.m).toLocaleString() + " ₽/ТАП";
+        } else {
+            tapPowerText.innerText = (POWERS[9] * state.m).toLocaleString() + " ₽/СЕК (АВТО)";
+            tapPowerText.style.color = "gold";
+        }
 
         if (state.p) document.getElementById('promo-btn').style.display = 'none';
 
         const uArea = document.getElementById('upgrade-area');
-        if (state.l < 8) {
+        if (state.l < COSTS.length) {
             uArea.innerHTML = `<button class="game-btn u-btn" onclick="buyUpgrade()">УЛУЧШИТЬ ДО LVL ${state.l + 2} (${COSTS[state.l].toLocaleString()} ₽)</button>`;
             uArea.querySelector('button').disabled = state.b < COSTS[state.l];
             document.getElementById('max-info').style.display = 'none';
         } else {
             uArea.innerHTML = "";
             document.getElementById('max-info').style.display = 'block';
+            document.getElementById('max-info').innerText = "MAX LEVEL: 2M/SEC REACHED 👑";
         }
 
         const rArea = document.getElementById('rebirth-area');
@@ -172,12 +183,10 @@
             rArea.querySelector('button').disabled = state.b < rb.c;
         } else { rArea.innerHTML = ""; }
 
-        localStorage.setItem('tb_ultimate_final_v1', JSON.stringify(state));
+        localStorage.setItem('tb_winter_v2', JSON.stringify(state));
     }
 
-    state.multVal = function() { return this.m; };
-
-    // 6. СНЕГ (ВИЗУАЛ)
+    // 6. СНЕЖИНКИ
     const canvas = document.getElementById('snow-box');
     const ctx = canvas.getContext('2d');
     let flakes = [];
@@ -194,7 +203,6 @@
         ctx.fill(); requestAnimationFrame(drawSnow);
     }
     drawSnow();
-
     refresh();
 </script>
 </body>
