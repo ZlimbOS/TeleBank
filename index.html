@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 2 Update</title>
+    <title>TeleBank | Season 2 Auth</title>
+    <script src="https://jsdelivr.net"></script>
+    <script src="https://jsdelivr.net"></script>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; --accent: #ff3e3e; }
         body { 
@@ -14,19 +16,23 @@
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
-        /* ПЛАШКА ОБНОВЛЕНИЯ */
-        .update-badge {
-            position: absolute; top: 20px; right: 20px;
-            background: var(--accent); color: white; padding: 8px 15px;
-            border-radius: 50px; font-size: 0.7rem; font-weight: 900;
-            box-shadow: 0 0 15px var(--accent); z-index: 100;
-            animation: pulse 1.5s infinite;
+        /* ОКНО РЕГИСТРАЦИИ */
+        #auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: flex; justify-content: center;
+            align-items: center; z-index: 1000;
         }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        .auth-card {
+            background: #0f172a; padding: 30px; border-radius: 25px;
+            border: 2px solid var(--p); width: 300px; text-align: center;
+        }
+        .auth-input {
+            width: 90%; padding: 12px; margin: 10px 0; border-radius: 10px;
+            border: 1px solid #334155; background: #1e293b; color: white;
+        }
 
         .season-header {
-            font-size: 2.5rem; font-weight: 900; color: #ffffff;
-            text-transform: uppercase; letter-spacing: 8px; margin-bottom: 10px;
+            font-size: 2.5rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 10px;
             text-shadow: 0 0 25px rgba(255, 255, 255, 0.5); z-index: 10;
         }
 
@@ -49,18 +55,12 @@
         }
         .coin-btn.wait { opacity: 0.8; transform: scale(0.98); }
         
-        .lead-btn {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer;
-            margin-bottom: 15px; font-weight: bold; z-index: 10; font-size: 0.8rem;
-        }
-
         #lead-box {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: #0f172a; border: 2px solid var(--p); padding: 20px;
-            border-radius: 20px; width: 280px; z-index: 200; box-shadow: 0 0 50px #000;
+            border-radius: 20px; width: 300px; z-index: 200; box-shadow: 0 0 50px #000;
         }
-        .lead-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; }
+        .lead-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; }
         .you { color: var(--p); font-weight: bold; }
 
         button.game-btn { 
@@ -83,12 +83,24 @@
 <body>
 
 <canvas id="snow-box"></canvas>
-<div class="update-badge">NEW UPDATE 2.0</div>
+
+<!-- ЭКРАН ВХОДА -->
+<div id="auth-overlay">
+    <div class="auth-card">
+        <h2 style="margin-top:0">ВХОД / РЕГИСТРАЦИЯ</h2>
+        <input type="text" id="username" class="auth-input" placeholder="Логин">
+        <input type="password" id="password" class="auth-input" placeholder="Пароль">
+        <button class="game-btn u-btn" onclick="auth('login')">ВОЙТИ</button>
+        <button class="game-btn r-btn" onclick="auth('signup')">СОЗДАТЬ АККАУНТ</button>
+        <p id="auth-err" style="color: #ff4444; font-size: 0.7rem; margin-top: 10px;"></p>
+    </div>
+</div>
+
 <div class="season-header">СЕЗОН 2</div>
-<button class="lead-btn" onclick="toggleLead()">🏆 ЛИДЕРЫ СЕЗОНА</button>
+<button class="game-btn u-btn" style="width: auto; margin-bottom: 10px; z-index: 10;" onclick="toggleLead()">🏆 РЕАЛЬНЫЙ ТОП</button>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK ULTIMATE</div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK | <span id="user-display">?</span></div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     
@@ -102,23 +114,19 @@
 </div>
 
 <div id="lead-box">
-    <h3 style="margin-top:0; text-align: center;">TOP PLAYERS</h3>
-    <div id="lead-list"></div>
+    <h3 style="margin-top:0; text-align: center;">ОНЛАЙН ЛИДЕРЫ</h3>
+    <div id="lead-list" style="max-height: 300px; overflow-y: auto;">Загрузка...</div>
     <button class="game-btn u-btn" style="margin-top:15px" onclick="toggleLead()">ЗАКРЫТЬ</button>
 </div>
 
 <script>
-    // 1. БАЛАНС (BigInt)
-    const POWERS = [
-        100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 
-        500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n
-    ];
-    // LVL 12 за 15 КВАДРИЛЛИОНОВ
-    const COSTS = [
-        1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 
-        100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n
-    ];
-    // OMEGA за 2 КВАДРИЛЛИОНА
+    // 1. НАСТРОЙКИ СЕТИ И ДАННЫХ
+    const gun = Gun(['https://herokuapp.com']);
+    const user = gun.user().recall({localStorage: true});
+    const leaderboard = gun.get('telebank_v2_auth_leaders');
+
+    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
+    const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n];
     const REBIRTHS = [
         { c: 1000000n, m: 10n, n: "x10" },
         { c: 1000000000n, m: 100n, n: "x100" },
@@ -126,26 +134,55 @@
         { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" } 
     ];
 
-    let state = { b: 0n, l: 0, m: 1n };
+    let state = { b: 0n, l: 0, m: 1n, name: "" };
     let wait = false;
-    const SAVE_KEY = 'tb_turbo_s2_stable';
 
-    function load() {
-        const saved = localStorage.getItem(SAVE_KEY);
-        if (saved) {
-            try {
-                const d = JSON.parse(saved);
-                state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
-            } catch(e) {}
+    // 2. АВТОРИЗАЦИЯ
+    function auth(type) {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        if(u.length < 3 || p.length < 4) return alert("Слишком короткий логин или пароль");
+
+        if(type === 'signup') {
+            user.create(u, p, (ack) => {
+                if(ack.err) document.getElementById('auth-err').innerText = ack.err;
+                else auth('login');
+            });
+        } else {
+            user.auth(u, p, (ack) => {
+                if(ack.err) document.getElementById('auth-err').innerText = ack.err;
+                else location.reload();
+            });
         }
     }
-    function save() {
-        localStorage.setItem(SAVE_KEY, JSON.stringify({
-            b: state.b.toString(), l: state.l, m: state.m.toString()
-        }));
-    }
-    load();
 
+    // Проверка входа
+    if(user.is) {
+        document.getElementById('auth-overlay').style.display = 'none';
+        user.get('alias').once(n => {
+            state.name = n;
+            document.getElementById('user-display').innerText = n;
+            loadData();
+        });
+    }
+
+    function loadData() {
+        user.get('game_state').once(d => {
+            if(d) {
+                state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
+            }
+            refresh();
+        });
+    }
+
+    function save() {
+        if(!user.is) return;
+        const data = { b: state.b.toString(), l: state.l, m: state.m.toString() };
+        user.get('game_state').put(data);
+        leaderboard.get(state.name).put({ score: state.b.toString() });
+    }
+
+    // 3. ГЕЙМПЛЕЙ
     function f(n) {
         let num = BigInt(n);
         if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
@@ -155,72 +192,60 @@
         return num.toLocaleString();
     }
 
-    function getP() { return POWERS[state.l] * state.m; }
-
-    setInterval(() => {
-        if (state.l >= 9) { state.b += getP(); refresh(); save(); }
-    }, 1000);
+    setInterval(() => { if (state.l >= 9) { state.b += POWERS[state.l] * state.m; refresh(); save(); } }, 1000);
 
     document.getElementById('coin').onclick = (e) => {
-        if (wait) return;
-        wait = true;
-        state.b += getP();
-        const c = document.getElementById('coin');
-        c.classList.add('wait');
-        setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100); // 0.1 сек
-
+        if (wait || !user.is) return; wait = true;
+        state.b += POWERS[state.l] * state.m;
+        document.getElementById('coin').classList.add('wait');
+        setTimeout(() => { wait = false; document.getElementById('coin').classList.remove('wait'); }, 100);
+        
         const anim = document.createElement('div');
-        anim.className = 'plus';
-        anim.innerText = "+" + f(getP());
+        anim.className = 'plus'; anim.innerText = "+" + f(POWERS[state.l] * state.m);
         anim.style.left = e.clientX + "px"; anim.style.top = e.clientY + "px";
         document.body.appendChild(anim);
         setTimeout(() => anim.remove(), 400);
         refresh(); save();
     };
 
-    window.buyL = () => {
-        if (state.b >= COSTS[state.l]) {
-            state.b -= COSTS[state.l]; state.l++; save(); refresh();
-        }
-    };
-    window.buyR = (i) => {
-        if (state.b >= REBIRTHS[i].c) {
-            state.b = 0n; state.l = 0; state.m = REBIRTHS[i].m; save(); refresh();
-        }
-    };
+    window.buyL = () => { if (state.b >= COSTS[state.l]) { state.b -= COSTS[state.l]; state.l++; save(); refresh(); } };
+    window.buyR = (i) => { if (state.b >= REBIRTHS[i].c) { state.b = 0n; state.l = 0; state.m = REBIRTHS[i].m; save(); refresh(); } };
 
+    // 4. ТАБЛИЦА ЛИДЕРОВ
     function toggleLead() {
         const box = document.getElementById('lead-box');
         box.style.display = box.style.display === 'block' ? 'none' : 'block';
-        updateLead();
+        if(box.style.display === 'block') {
+            leaderboard.map().once((val, key) => {
+                let list = document.getElementById('lead-list');
+                // Логика отрисовки топа (собирает всех активных игроков)
+                updateLeadUI();
+            });
+        }
     }
 
-    function updateLead() {
-        const fakeLead = [
-            { n: "ElonMusk_2", b: 15000000000000000n },
-            { n: "WinterKing", b: 8000000000000000n },
-            { n: "Ты (Pro)", b: state.b, me: true },
-            { n: "Noob_99", b: 1000000000n }
-        ].sort((a,b) => (b.b > a.b ? 1 : -1));
-
-        let html = "";
-        fakeLead.forEach((p, i) => {
-            html += `<div class="lead-item ${p.me?'you':''}"><span>${i+1}. ${p.n}</span> <span>${f(p.b)}</span></div>`;
+    function updateLeadUI() {
+        let players = [];
+        leaderboard.map().once((val, key) => {
+            if(val && val.score) players.push({ name: key, score: BigInt(val.score) });
+            players.sort((a,b) => (b.score > a.score ? 1 : -1));
+            let h = "";
+            players.slice(0, 10).forEach((p, i) => {
+                h += `<div class="lead-item ${p.name === state.name ? 'you' : ''}"><span>${i+1}. ${p.name}</span> <span>${f(p.score)}</span></div>`;
+            });
+            document.getElementById('lead-list').innerHTML = h || "Нет данных";
         });
-        document.getElementById('lead-list').innerHTML = html;
     }
 
     function refresh() {
         document.getElementById('bal').innerText = f(state.b) + " ₽";
         document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         let isA = state.l >= 9;
-        document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
-        
+        document.getElementById('inc-val').innerText = f(POWERS[state.l] * state.m) + (isA ? " /СЕК" : " /ТАП");
         const uA = document.getElementById('u-area');
         if (state.l < COSTS.length) {
             uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(COSTS[state.l])} ₽</button>`;
-        } else { uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX SEASON 2 LEVEL 👑</div>"; }
-        
+        } else { uA.innerHTML = "MAX LEVEL 👑"; }
         const rA = document.getElementById('r-area');
         let next = REBIRTHS.findIndex(r => r.m > state.m);
         if (next !== -1) {
@@ -228,22 +253,17 @@
         } else { rA.innerHTML = ""; }
     }
 
-    const canvas = document.getElementById('snow-box');
-    const ctx = canvas.getContext('2d');
-    let flakes = [];
+    // Снег
+    const canvas = document.getElementById('snow-box'); const ctx = canvas.getContext('2d'); let flakes = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
     for(let i=0; i<40; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2, s: Math.random()*1+0.2});
     function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = "white"; ctx.beginPath();
-        flakes.forEach(f => {
-            ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
-            f.y += f.s; if(f.y > canvas.height) f.y = -5;
-        });
+        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "white"; ctx.beginPath();
+        flakes.forEach(f => { ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); f.y += f.s; if(f.y > canvas.height) f.y = -5; });
         ctx.fill(); requestAnimationFrame(draw);
     }
-    draw(); refresh();
+    draw();
 </script>
 </body>
 </html>
