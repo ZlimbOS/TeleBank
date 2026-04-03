@@ -2,149 +2,81 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ArtemPC | Pure Performance</title>
-    <script src="https://tailwindcss.com"></script>
-    <link href="https://googleapis.com" rel="stylesheet">
+    <title>Clicker Bank</title>
     <style>
-        :root { --accent: #00e5ff; --bg: #000000; --card: #0a0a0a; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: #fff;
-            -webkit-font-smoothing: antialiased;
-        }
-        /* Чистое белое поле поиска/ввода */
-        .premium-input {
-            background: #ffffff !important;
-            color: #000 !important;
-            border-radius: 12px;
-            padding: 16px 24px;
-            font-weight: 600;
-            font-size: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: none;
-            width: 100%;
-        }
-        .premium-input::placeholder { color: #999; }
-
-        /* Карточки без лишнего "дребезга" */
-        .pc-card {
-            background: var(--card);
-            border: 1px solid #111;
-            border-radius: 20px;
-            transition: border-color 0.3s ease;
-        }
-        .pc-card:hover {
-            border-color: var(--accent);
-        }
-        
-        /* Кнопка */
-        .btn-solid {
-            background: #fff;
-            color: #000;
-            font-weight: 800;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 16px;
-            border-radius: 10px;
-            transition: 0.2s;
-            text-align: center;
-        }
-        .btn-solid:active { transform: scale(0.98); }
-
-        .spec-label { font-size: 10px; color: #555; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
-        .spec-value { font-size: 13px; font-weight: 600; color: #eee; }
+        body { font-family: sans-serif; text-align: center; background: #f0f2f5; padding-top: 50px; }
+        .card { background: white; width: 300px; margin: 0 auto; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #money-img { width: 150px; cursor: pointer; transition: transform 0.1s; }
+        #money-img:active { transform: scale(0.9); }
+        button { margin-top: 10px; padding: 10px; cursor: pointer; border: none; border-radius: 5px; background: #28a745; color: white; }
+        button:disabled { background: #ccc; }
+        .stats { font-size: 1.2em; margin: 20px 0; }
     </style>
 </head>
-<body class="p-0 m-0">
+<body>
 
-    <!-- Header -->
-    <nav class="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/5 px-6 py-5 flex justify-between items-center">
-        <div class="text-xl font-black tracking-tighter uppercase">Artem<span class="text-cyan-400">PC</span></div>
-        <div class="flex items-center gap-6">
-            <span class="hidden md:block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Premium Builds</span>
-            <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">🛒</div>
+    <div id="reg-screen" class="card">
+        <h2>Регистрация в Банке</h2>
+        <input type="text" id="username" placeholder="Введите имя">
+        <button onclick="register()">Войти</button>
+    </div>
+
+    <div id="game-screen" class="card" style="display:none;">
+        <h2 id="welcome">Привет!</h2>
+        <div class="stats">Баланс: <span id="balance">0</span> руб.</div>
+        <div class="stats">За тап: +<span id="per-tap">100</span> руб.</div>
+        
+        <img src="https://flaticon.com" id="money-img" onclick="tap()">
+        
+        <div style="margin-top: 20px;">
+            <button id="upg1" onclick="upgrade(1, 500, 200)">Улучшить за 500 руб (+200 за тап)</button>
+            <button id="upg2" onclick="upgrade(2, 1500, 300)" style="display:none;">Улучшить за 1500 руб (+300 за тап)</button>
+            <p id="max-lvl" style="display:none; color: gold; font-weight: bold;">МАКСИМАЛЬНЫЙ УРОВЕНЬ</p>
         </div>
-    </nav>
+    </div>
 
-    <main class="max-w-5xl mx-auto px-6 pt-12">
-        <!-- Hero Static -->
-        <header class="mb-20">
-            <h1 class="text-5xl md:text-8xl font-black tracking-tighter leading-none mb-6">
-                ONLY <br> <span class="text-cyan-400 uppercase">POWER.</span>
-            </h1>
-            <p class="text-gray-500 text-sm md:text-lg max-w-xl font-medium leading-relaxed mb-10">
-                Максимальная производительность в минималистичном корпусе. Сборки ArtemPC — это стандарт надежности.
-            </p>
-            
-            <!-- White Search Input Area -->
-            <div class="max-w-md">
-                <input type="text" class="premium-input" placeholder="Поиск конфигурации (например, RTX 4090)...">
-            </div>
-        </header>
+    <script>
+        let balance = 0;
+        let perTap = 100;
+        let level = 0;
 
-        <!-- Grid Stacked for Mobile -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pb-24">
-            
-            <!-- PC Card 1 -->
-            <div class="pc-card flex flex-col overflow-hidden">
-                <div class="aspect-video bg-[#050505] border-b border-white/5 overflow-hidden">
-                    <img src="https://unsplash.com" class="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-500" alt="ArtemPC Build">
-                </div>
-                <div class="p-8">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h3 class="text-2xl font-bold uppercase tracking-tight">Eclipse Pro</h3>
-                            <p class="text-[10px] text-cyan-400 font-black uppercase tracking-widest mt-1">Series Alpha</p>
-                        </div>
-                        <div class="text-xl font-black">165.000 ₽</div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-y-4 mb-10">
-                        <div><p class="spec-label">Graphics</p><p class="spec-value">RTX 4070 SUPER</p></div>
-                        <div><p class="spec-label">Processor</p><p class="spec-value">i7-14700K</p></div>
-                        <div><p class="spec-label">Memory</p><p class="spec-value">32GB DDR5</p></div>
-                        <div><p class="spec-label">Storage</p><p class="spec-value">2TB NVMe Gen4</p></div>
-                    </div>
+        function register() {
+            const name = document.getElementById('username').value;
+            if (name) {
+                document.getElementById('reg-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'block';
+                document.getElementById('welcome').innerText = "Банк: " + name;
+            }
+        }
 
-                    <button class="btn-solid w-full bg-cyan-400">Конфигурировать</button>
-                </div>
-            </div>
+        function tap() {
+            balance += perTap;
+            updateUI();
+        }
 
-            <!-- PC Card 2 -->
-            <div class="pc-card flex flex-col overflow-hidden">
-                <div class="aspect-video bg-[#050505] border-b border-white/5 overflow-hidden">
-                    <img src="https://unsplash.com" class="w-full h-full object-cover grayscale hover:grayscale-0 transition duration-500" alt="ArtemPC Build">
-                </div>
-                <div class="p-8">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h3 class="text-2xl font-bold uppercase tracking-tight">Phantom X</h3>
-                            <p class="text-[10px] text-cyan-400 font-black uppercase tracking-widest mt-1">Series Ultra</p>
-                        </div>
-                        <div class="text-xl font-black">420.000 ₽</div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-y-4 mb-10">
-                        <div><p class="spec-label">Graphics</p><p class="spec-value">RTX 4090 24GB</p></div>
-                        <div><p class="spec-label">Processor</p><p class="spec-value">i9-14900KS</p></div>
-                        <div><p class="spec-label">Memory</p><p class="spec-value">64GB 7200MHz</p></div>
-                        <div><p class="spec-label">Storage</p><p class="spec-value">4TB Extreme SSD</p></div>
-                    </div>
+        function upgrade(lvl, cost, nextPower) {
+            if (balance >= cost) {
+                balance -= cost;
+                perTap = nextPower;
+                level = lvl;
+                
+                if (lvl === 1) {
+                    document.getElementById('upg1').style.display = 'none';
+                    document.getElementById('upg2').style.display = 'inline-block';
+                } else if (lvl === 2) {
+                    document.getElementById('upg2').style.display = 'none';
+                    document.getElementById('max-lvl').style.display = 'block';
+                }
+                updateUI();
+            } else {
+                alert("Недостаточно денег!");
+            }
+        }
 
-                    <button class="btn-solid w-full">Купить билд</button>
-                </div>
-            </div>
-
-        </div>
-    </main>
-
-    <footer class="py-16 border-t border-white/5 px-6 text-center">
-        <div class="text-xs font-bold text-gray-700 tracking-[10px] uppercase mb-4">ArtemPC. All Rights Reserved.</div>
-        <p class="text-[9px] text-gray-800 uppercase font-black">2026 Edition</p>
-    </footer>
-
+        function updateUI() {
+            document.getElementById('balance').innerText = balance;
+            document.getElementById('per-tap').innerText = perTap;
+        }
+    </script>
 </body>
 </html>
