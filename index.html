@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeoBank | Save & Evolution</title>
+    <title>TeleBank | Ultimate Edition</title>
     <style>
         :root {
             --primary: #00ff88;
-            --secondary: #00bd65;
             --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.9);
+            --glass: rgba(30, 41, 59, 0.9);
         }
 
         body {
@@ -25,7 +24,7 @@
         }
 
         .container {
-            background: var(--card);
+            background: var(--glass);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255,255,255,0.1);
             padding: 30px;
@@ -35,25 +34,27 @@
             width: 350px;
         }
 
-        h2 { font-size: 1.8rem; margin-bottom: 20px; color: var(--primary); letter-spacing: 2px; text-transform: uppercase; }
+        h2 { font-size: 2rem; margin: 0 0 20px; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
 
         input {
-            width: 90%;
-            padding: 14px;
+            width: 100%;
+            padding: 15px;
             border-radius: 12px;
             border: 1px solid rgba(255,255,255,0.2);
             background: rgba(0,0,0,0.3);
             color: white;
             margin-bottom: 20px;
+            box-sizing: border-box;
             outline: none;
             text-align: center;
+            font-size: 1rem;
         }
 
         button {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #00ff88, #00bd65);
             color: #052e16;
             border: none;
-            padding: 14px;
+            padding: 15px;
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
@@ -76,7 +77,7 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .balance-value { font-size: 1.8rem; font-weight: bold; color: var(--primary); display: block; }
+        .balance-value { font-size: 2rem; font-weight: bold; color: var(--primary); display: block; }
         
         .coin {
             width: 130px; height: 130px;
@@ -93,25 +94,28 @@
         .plus-one {
             position: absolute; color: var(--primary); font-weight: bold;
             animation: floatUp 0.8s ease-out forwards; pointer-events: none;
+            z-index: 100;
         }
         @keyframes floatUp {
             0% { transform: translateY(0); opacity: 1; }
             100% { transform: translateY(-100px); opacity: 0; }
         }
 
-        .reset-btn { background: none; color: #ff4444; font-size: 10px; margin-top: 20px; cursor: pointer; border: none; opacity: 0.5; }
+        .reset-link { color: #ff4444; font-size: 10px; margin-top: 20px; cursor: pointer; opacity: 0.5; display: block; text-decoration: none; }
     </style>
 </head>
 <body>
 
+    <!-- ЭКРАН РЕГИСТРАЦИИ -->
     <div id="reg-screen" class="container">
         <h2>NeoBank</h2>
-        <input type="text" id="username" placeholder="ИМЯ КЛИЕНТА">
-        <button onclick="register()">ОТКРЫТЬ СЧЕТ</button>
+        <input type="text" id="username" placeholder="ВВЕДИТЕ ИМЯ" autocomplete="off">
+        <button id="start-btn">ОТКРЫТЬ СЧЕТ</button>
     </div>
 
+    <!-- ЭКРАН ИГРЫ -->
     <div id="game-screen" class="container" style="display:none;">
-        <div id="client-id" style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 10px;"></div>
+        <div id="client-display" style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 10px; font-weight: bold;"></div>
         
         <div class="stats-box">
             <span style="font-size: 0.7rem; opacity: 0.6;">БАЛАНС</span>
@@ -119,62 +123,65 @@
             <div id="mult-tag" style="color: #f093fb; font-size: 0.8rem; margin-top: 5px; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
         </div>
 
-        <div class="coin" onclick="tap(event)">🪙</div>
+        <div class="coin" id="coin-btn">🪙</div>
 
-        <div id="upgrades">
-            <p style="font-size: 0.8rem; margin-bottom: 10px;">ДОХОД: <span id="per-tap" style="color: var(--primary)">100</span> ₽</p>
+        <div id="shop">
+            <p style="font-size: 0.8rem; margin-bottom: 10px;">КЛИК: <span id="per-tap" style="color: var(--primary)">100</span> ₽</p>
             
-            <div id="lvl-buttons">
-                <button id="u1" onclick="buyUpg(1, 500)">LVL 2 (500 ₽)</button>
-                <button id="u2" onclick="buyUpg(2, 1500)">LVL 3 (1500 ₽)</button>
-                <button id="u3" onclick="buyUpg(3, 5000)">LVL 4 (5000 ₽)</button>
-                <button id="u4" onclick="buyUpg(4, 10000)">LVL 5 (10000 ₽)</button>
-                <button id="u5" onclick="buyUpg(5, 50000)">LVL 6 (50000 ₽)</button>
-                <button id="u6" onclick="buyUpg(6, 150000)">LVL 7 (150000 ₽)</button>
-                <button id="u7" onclick="buyUpg(7, 1000000)">LVL 8 (1.000.000 ₽)</button>
+            <div id="upg-buttons">
+                <button id="u1">LEVEL 2 (500 ₽)</button>
+                <button id="u2">LEVEL 3 (1500 ₽)</button>
+                <button id="u3">LEVEL 4 (5000 ₽)</button>
+                <button id="u4">LEVEL 5 (10000 ₽)</button>
+                <button id="u5">LEVEL 6 (50000 ₽)</button>
+                <button id="u6">LEVEL 7 (150000 ₽)</button>
+                <button id="u7">LEVEL 8 (1.000.000 ₽)</button>
             </div>
             
-            <button id="rb1" class="rebirth-btn" onclick="doRebirth(15000, 2)">REBIRTH x2 (15000 ₽)</button>
-            <button id="rb2" class="rebirth-btn" onclick="doRebirth(50000, 3)">REBIRTH x3 (50000 ₽)</button>
-            <button id="rb3" class="rebirth-btn" onclick="doRebirth(200000, 4)">REBIRTH x4 (200000 ₽)</button>
+            <button id="rb1" class="rebirth-btn">REBIRTH x2 (15000 ₽)</button>
+            <button id="rb2" class="rebirth-btn">REBIRTH x3 (50000 ₽)</button>
+            <button id="rb3" class="rebirth-btn">REBIRTH x4 (200000 ₽)</button>
             
-            <div id="max-lvl" style="display:none; color: gold; font-weight: bold; margin-top: 15px;">MAX LEVEL REACHED 👑</div>
+            <div id="max-lvl" style="display:none; color: gold; font-weight: bold; margin-top: 15px;">СИСТЕМА МАКСИМАЛЬНО ПРОКАЧАНА 👑</div>
         </div>
 
-        <button class="reset-btn" onclick="resetGame()">Сбросить прогресс</button>
+        <a class="reset-link" onclick="resetAll()">СБРОСИТЬ ВСЁ</a>
     </div>
 
     <script>
-        let game = { name: "", balance: 0, lvl: 0, multiplier: 1 };
-        
+        // Исходные данные
+        let state = { name: "", balance: 0, lvl: 0, mult: 1 };
         const powers =;
         const costs =;
 
-        window.onload = function() {
-            const saved = localStorage.getItem('neoBankSave_v2');
-            if (saved) {
-                game = JSON.parse(saved);
-                if (game.name) showGame();
-            }
-        };
-
-        function save() { localStorage.setItem('neoBankSave_v2', JSON.stringify(game)); }
-
-        function register() {
-            const input = document.getElementById('username').value.trim();
-            if (input) { game.name = input; showGame(); save(); }
+        // Загрузка
+        const saved = localStorage.getItem('neobank_final_save');
+        if (saved) {
+            state = JSON.parse(saved);
+            if (state.name) showGame();
         }
+
+        // Регистрация
+        document.getElementById('start-btn').onclick = function() {
+            const name = document.getElementById('username').value.trim();
+            if (name) {
+                state.name = name;
+                save();
+                showGame();
+            } else { alert("Введите имя!"); }
+        };
 
         function showGame() {
             document.getElementById('reg-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'block';
-            document.getElementById('client-id').innerText = "КЛИЕНТ: " + game.name.toUpperCase();
+            document.getElementById('client-display').innerText = "КЛИЕНТ: " + state.name.toUpperCase();
             updateUI();
         }
 
-        function tap(e) {
-            let gain = powers[game.lvl] * game.multiplier;
-            game.balance += gain;
+        // Клик
+        document.getElementById('coin-btn').onclick = function(e) {
+            let gain = powers[state.lvl] * state.mult;
+            state.balance += gain;
             
             const plus = document.createElement('div');
             plus.innerText = `+${gain}`;
@@ -186,56 +193,60 @@
             
             updateUI();
             save();
+        };
+
+        // Покупка уровней
+        for (let i = 1; i <= 7; i++) {
+            document.getElementById('u' + i).onclick = function() {
+                let cost = costs[i-1];
+                if (state.balance >= cost) {
+                    state.balance -= cost;
+                    state.lvl = i;
+                    updateUI();
+                    save();
+                }
+            };
         }
 
-        function buyUpg(newLvl, price) {
-            if (game.balance >= price) {
-                game.balance -= price;
-                game.lvl = newLvl;
-                updateUI();
-                save();
-            }
-        }
+        // Ребиртхи
+        document.getElementById('rb1').onclick = function() { rebirth(15000, 2); };
+        document.getElementById('rb2').onclick = function() { rebirth(50000, 3); };
+        document.getElementById('rb3').onclick = function() { rebirth(200000, 4); };
 
-        function doRebirth(price, mult) {
-            if (game.balance >= price) {
-                game.balance = 0;
-                game.lvl = 0;
-                game.multiplier = mult;
-                updateUI();
-                save();
+        function rebirth(cost, m) {
+            if (state.balance >= cost) {
+                state.balance = 0; state.lvl = 0; state.mult = m;
+                updateUI(); save();
             }
         }
 
         function updateUI() {
-            document.getElementById('balance').innerText = Math.floor(game.balance).toLocaleString();
-            document.getElementById('per-tap').innerText = (powers[game.lvl] * game.multiplier).toLocaleString();
-            document.getElementById('mult-tag').innerText = `МНОЖИТЕЛЬ: x${game.multiplier}`;
+            document.getElementById('balance').innerText = Math.floor(state.balance).toLocaleString();
+            document.getElementById('per-tap').innerText = (powers[state.lvl] * state.mult).toLocaleString();
+            document.getElementById('mult-tag').innerText = `МНОЖИТЕЛЬ: x${state.mult}`;
 
-            // Уровни: показываем только следующую покупку
+            // Видимость кнопок LVL
             for (let i = 1; i <= 7; i++) {
                 let btn = document.getElementById('u' + i);
-                btn.style.display = (game.lvl === i - 1) ? 'block' : 'none';
-                btn.disabled = game.balance < costs[i - 1];
+                btn.style.display = (state.lvl === i - 1) ? 'block' : 'none';
+                btn.disabled = state.balance < costs[i - 1];
             }
-            document.getElementById('max-lvl').style.display = (game.lvl === 7) ? 'block' : 'none';
+            document.getElementById('max-lvl').style.display = (state.lvl === 7) ? 'block' : 'none';
 
-            // Ребиртхи: логика появления
+            // Видимость ребиртхов
             const r1 = document.getElementById('rb1'), r2 = document.getElementById('rb2'), r3 = document.getElementById('rb3');
+            r1.style.display = (state.mult === 1 && (state.balance >= 10000 || state.lvl >= 4)) ? 'block' : 'none';
+            r1.disabled = state.balance < 15000;
             
-            r1.style.display = (game.multiplier === 1 && game.balance >= 10000) ? 'block' : 'none';
-            r1.disabled = game.balance < 15000;
-            
-            r2.style.display = (game.multiplier === 2 && game.balance >= 40000) ? 'block' : 'none';
-            r2.disabled = game.balance < 50000;
+            r2.style.display = (state.mult === 2 && (state.balance >= 40000 || state.lvl >= 5)) ? 'block' : 'none';
+            r2.disabled = state.balance < 50000;
 
-            r3.style.display = (game.multiplier === 3 && game.balance >= 150000) ? 'block' : 'none';
-            r3.disabled = game.balance < 200000;
+            r3.style.display = (state.mult === 3 && (state.balance >= 150000 || state.lvl >= 6)) ? 'block' : 'none';
+            r3.disabled = state.balance < 200000;
         }
 
-        function resetGame() {
-            if (confirm("Удалить всё?")) { localStorage.clear(); location.reload(); }
-        }
+        function save() { localStorage.setItem('neobank_final_save', JSON.stringify(state)); }
+        function resetAll() { if(confirm("Сбросить весь прогресс?")) { localStorage.clear(); location.reload(); } }
     </script>
 </body>
 </html>
