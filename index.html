@@ -35,7 +35,7 @@
             transition: 0.1s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
-        .coin-btn:active { transform: scale(0.9); }
+        .coin-btn:active { transform: scale(0.95); }
         button.game-btn { 
             width: 100%; padding: 16px; border-radius: 14px; border: none; 
             margin-top: 10px; font-weight: bold; cursor: pointer; 
@@ -73,31 +73,49 @@
 </div>
 
 <script>
-    // 1. ДАННЫЕ ИГРЫ (МАССИВЫ ОБНОВЛЕНЫ)
-    const POWERS = [100, 200, 500, 1000, 5000, 15000, 50000, 150000, 500000, 2000000]; // 10 уровней
-    const COSTS = [500, 2000, 10000, 50000, 200000, 1000000, 5000000, 15000000, 50000000]; // Цены до 10 лвла
+    // 1. КОНФИГУРАЦИЯ (10 уровней и ребирхи)
+    const POWERS =; 
+    const COSTS =; 
     const REBIRTHS = [
         { c: 15000, m: 2, n: "x2" },
         { c: 100000, m: 5, n: "x5" },
         { c: 1000000, m: 10, n: "x10" },
         { c: 50000000, m: 100, n: "ULTRA x100" },
-        { c: 250000000, m: 200, n: "MYTHIC x200" } // Новый ребирх
+        { c: 250000000, m: 200, n: "MYTHIC x200" }
     ];
 
+    // 2. СОСТОЯНИЕ (Загрузка)
     let state = { b: 0, l: 0, m: 1, p: false };
+    const SAVE_KEY = 'telebank_v4_save';
 
-    const saved = localStorage.getItem('tb_v3_final');
-    if (saved) state = Object.assign(state, JSON.parse(saved));
+    function loadGame() {
+        const saved = localStorage.getItem(SAVE_KEY);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                state = Object.assign(state, parsed);
+            } catch(e) { console.error("Ошибка загрузки!"); }
+        }
+    }
 
-    // 2. ПАССИВНЫЙ ДОХОД (Включается на 10-м уровне)
+    function saveGame() {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    }
+
+    loadGame();
+
+    // 3. ПАССИВНЫЙ ДОХОД (10 уровень = индекс 9)
     setInterval(() => {
         if (state.l >= 9) {
-            state.b += POWERS[9] * state.m;
+            state.b += POWERS * state.m;
             refresh();
         }
     }, 1000);
 
-    // 3. КЛИК
+    // Авто-сохранение каждые 5 сек
+    setInterval(saveGame, 5000);
+
+    // 4. ЛОГИКА ТАПА
     const coin = document.getElementById('main-coin');
     coin.onclick = function(e) {
         let gain = POWERS[state.l] * state.m;
@@ -114,11 +132,12 @@
         refresh();
     };
 
-    // 4. ПОКУПКИ
+    // 5. МАГАЗИН
     window.buyUpgrade = function() {
         if (state.b >= COSTS[state.l]) {
             state.b -= COSTS[state.l];
             state.l++;
+            saveGame();
             refresh();
         }
     }
@@ -126,6 +145,7 @@
     window.doRebirth = function(idx) {
         if (state.b >= REBIRTHS[idx].c) {
             state.b = 0; state.l = 0; state.m = REBIRTHS[idx].m;
+            saveGame();
             refresh();
         }
     }
@@ -135,12 +155,13 @@
         let code = prompt("Введите промокод:");
         if (code && code.toUpperCase() === "РУБЦОВ") {
             state.b += 100000; state.p = true;
+            saveGame();
             alert("УСПЕХ! +100,000 ₽");
             refresh();
         }
     };
 
-    // 5. ОБНОВЛЕНИЕ
+    // 6. ИНТЕРФЕЙС
     function refresh() {
         document.getElementById('balance').innerText = Math.floor(state.b).toLocaleString();
         document.getElementById('mult-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
@@ -151,8 +172,9 @@
         if (state.l < 9) {
             pwr.innerText = (POWERS[state.l] * state.m).toLocaleString() + " ₽/ТАП";
             lbl.innerText = "ДОХОД:";
+            pwr.style.color = "var(--p)";
         } else {
-            pwr.innerText = (POWERS[9] * state.m).toLocaleString() + " ₽/СЕК";
+            pwr.innerText = (POWERS * state.m).toLocaleString() + " ₽/СЕК";
             pwr.style.color = "gold";
             lbl.innerText = "АВТО-ДОХОД:";
         }
@@ -175,11 +197,9 @@
             rArea.innerHTML = `<button class="game-btn r-btn" onclick="doRebirth(${nextR})">REBIRTH ${rb.n} (${rb.c.toLocaleString()} ₽)</button>`;
             rArea.querySelector('button').disabled = state.b < rb.c;
         } else { rArea.innerHTML = ""; }
-
-        localStorage.setItem('tb_v3_final', JSON.stringify(state));
     }
 
-    // 6. СНЕГ
+    // 7. ВИЗУАЛ (Снег)
     const canvas = document.getElementById('snow-box');
     const ctx = canvas.getContext('2d');
     let flakes = [];
