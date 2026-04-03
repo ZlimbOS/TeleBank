@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 1</title>
+    <title>TeleBank | Season 1 Turbo</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
@@ -14,16 +14,16 @@
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
-        /* Надпись СЕЗОН 1 */
-        .season-title {
-            font-size: 1.5rem;
+        /* СТИЛЬ ЗАГОЛОВКА СЕЗОНА */
+        .season-header {
+            font-size: 2rem;
             font-weight: 900;
-            color: white;
-            margin-bottom: 15px;
-            letter-spacing: 4px;
-            text-shadow: 0 0 15px rgba(255,255,255,0.5);
-            z-index: 10;
+            color: #ffffff;
             text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            z-index: 10;
         }
 
         .card { 
@@ -66,8 +66,8 @@
 
 <canvas id="snow-box"></canvas>
 
-<!-- Красивый заголовок сверху -->
-<div class="season-title">Сезон 1</div>
+<!-- Твой новый текст сверху -->
+<div class="season-header">СЕЗОН 1</div>
 
 <div class="card">
     <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK TURBO</div>
@@ -84,7 +84,7 @@
 </div>
 
 <script>
-    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n];
+    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 2000n * 10n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n];
     const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 500000000000000n];
     const REBIRTHS = [
         { c: 1000000n, m: 10n, n: "x10" },
@@ -96,14 +96,14 @@
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
 
-    const saved = localStorage.getItem('tb_turbo_s1');
+    const saved = localStorage.getItem('tb_turbo_v8_s1');
     if (saved) {
         const d = JSON.parse(saved);
         state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
     }
 
     function save() {
-        localStorage.setItem('tb_turbo_s1', JSON.stringify({
+        localStorage.setItem('tb_turbo_v8_s1', JSON.stringify({
             b: state.b.toString(), l: state.l, m: state.m.toString()
         }));
     }
@@ -128,7 +128,7 @@
     document.getElementById('coin').onclick = (e) => {
         if (wait) return;
         wait = true;
-        state.b += getP();
+        state.b += getPower();
         const c = document.getElementById('coin');
         c.classList.add('wait');
         setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100);
@@ -142,6 +142,8 @@
         setTimeout(() => anim.remove(), 400);
         refresh(); save();
     };
+
+    function getPower() { return POWERS[state.l] * state.m; }
 
     window.buyL = () => {
         if (state.b >= COSTS[state.l]) {
