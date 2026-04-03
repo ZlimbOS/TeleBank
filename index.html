@@ -3,195 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Premium Systems</title>
+    <title>NeoBank | Evolution</title>
+    <link href="https://googleapis.com" rel="stylesheet">
     <style>
         :root {
-            --bg: #000000;
-            --accent: #ffffff;
-            --border: #1a1a1a;
-            --muted: #555555;
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --accent: #7000ff;
+            --bg: #0b0e14;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--accent);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at top right, #16213e, #0b0e14);
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            margin: 0;
+            overflow-x: hidden;
         }
 
-        .container { 
-            width: 360px; 
-            padding: 40px; 
-            border: 1px solid var(--border); 
+        .container {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 35px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            width: 350px;
+            position: relative;
         }
 
-        h1 { font-size: 24px; font-weight: 900; margin: 0; letter-spacing: 4px; }
-        .tagline { color: var(--muted); font-size: 9px; margin-bottom: 40px; }
+        h1 { font-weight: 900; letter-spacing: -1px; margin-bottom: 5px; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tag { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
 
         input {
             width: 100%;
-            background: transparent;
-            border: 1px solid var(--border);
             padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
             color: white;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             box-sizing: border-box;
             outline: none;
-            font-size: 11px;
+            text-align: center;
         }
 
-        /* Стиль кнопок со скриншота: Белый фон, черный жирный текст */
+        /* Красивые градиентные кнопки */
         .btn {
-            background: var(--accent);
-            color: black;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            color: white;
             border: none;
-            padding: 14px;
-            font-weight: 900;
-            font-size: 11px;
+            padding: 16px;
+            border-radius: 15px;
+            font-weight: bold;
             cursor: pointer;
+            transition: 0.3s;
             width: 100%;
             margin-top: 10px;
-            transition: 0.2s;
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
-        .btn:hover { opacity: 0.8; }
-        .btn:disabled { background: #111; color: #333; cursor: not-allowed; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(112, 0, 255, 0.4); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { background: #333; box-shadow: none; opacity: 0.3; cursor: not-allowed; }
 
-        .rebirth-btn {
-            background: transparent;
-            color: var(--accent);
-            border: 1px solid var(--accent);
-            margin-top: 25px;
+        .rebirth-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: 0 10px 20px rgba(245, 87, 108, 0.3); }
+
+        .stats-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .stats { border-top: 1px solid var(--border); margin-top: 30px; padding-top: 20px; }
-        .label { color: var(--muted); font-size: 8px; margin-bottom: 5px; }
-        .value { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .balance-label { font-size: 0.7rem; opacity: 0.6; margin-bottom: 5px; }
+        .balance-val { font-size: 2rem; font-weight: 900; color: var(--primary); }
 
-        .tap-area {
-            height: 120px;
-            border: 1px solid var(--border);
-            margin: 25px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 45px;
+        /* Зона клика */
+        .coin-wrapper { position: relative; margin: 30px 0; }
+        .main-coin {
+            width: 140px; height: 140px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 60px;
+            margin: 0 auto;
             cursor: pointer;
             user-select: none;
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.3);
+            transition: 0.1s;
         }
-        .tap-area:active { background: #080808; transform: scale(0.98); }
+        .main-coin:active { transform: scale(0.92) rotate(5deg); }
 
-        .footer { margin-top: 40px; color: #222; font-size: 8px; }
+        .rebirth-badge { font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; margin-top: 10px; display: inline-block; }
     </style>
 </head>
 <body>
 
     <!-- ВХОД -->
-    <div id="auth-screen" class="container">
-        <h1>TELEBANK</h1>
-        <p class="tagline">PREMIUM TERMINAL ACCESS</p>
-        <input type="text" id="user-name" placeholder="CLIENT NAME...">
-        <button class="btn" onclick="login()">INITIALIZE</button>
+    <div id="scr-auth" class="container">
+        <h1>NEOBANK</h1>
+        <p class="tag">Next-Gen Assets</p>
+        <input type="text" id="username" placeholder="ВВЕДИТЕ ВАШЕ ИМЯ">
+        <button class="btn" onclick="init()">СОЗДАТЬ АККАУНТ</button>
     </div>
 
-    <!-- БАНК -->
-    <div id="bank-screen" class="container" style="display:none;">
-        <h1 id="client-name">CLIENT</h1>
-        <p class="tagline">REBIRTHS: <span id="reb-count">0</span> | 2026 EDITION</p>
+    <!-- ИГРА -->
+    <div id="scr-game" class="container" style="display:none;">
+        <h1 id="user-name">CLIENT</h1>
+        <div class="rebirth-badge">РЕБИРТ: x<span id="mult-val">1</span></div>
 
-        <div class="stats">
-            <div class="label">ASSETS</div>
-            <div class="value"><span id="balance">0</span> RUB</div>
-            
-            <div class="label">POWER</div>
-            <div class="value">+<span id="power-display">100</span> / TAP</div>
+        <div class="stats-card">
+            <div class="balance-label">ТЕКУЩИЙ БАЛАНС</div>
+            <div class="balance-val"><span id="balance">0</span> ₽</div>
+            <div style="font-size: 0.8rem; margin-top: 10px; opacity: 0.8;">Клик: +<span id="pwr">100</span> ₽</div>
         </div>
 
-        <div class="tap-area" onclick="handleTap()">🪙</div>
+        <div class="coin-wrapper">
+            <div class="main-coin" onclick="tap()">💎</div>
+        </div>
 
         <div id="shop">
-            <div class="label">HARDWARE UPGRADES</div>
-            <button id="lvl1" class="btn" onclick="buy(1, 500)">LVL 2: 500 RUB</button>
-            <button id="lvl2" class="btn" style="display:none" onclick="buy(2, 1500)">LVL 3: 1500 RUB</button>
-            <button id="lvl3" class="btn" style="display:none" onclick="buy(3, 5000)">LVL 4: 5000 RUB</button>
-            <div id="max-msg" style="display:none; text-align:center; font-size:9px; color:var(--muted); margin:15px 0;">MAX CONFIGURATION</div>
+            <button id="l1" class="btn" onclick="buy(1, 500)">LVL 2: 500 ₽</button>
+            <button id="l2" class="btn" style="display:none" onclick="buy(2, 1500)">LVL 3: 1500 ₽</button>
+            <button id="l3" class="btn" style="display:none" onclick="buy(3, 5000)">LVL 4: 5000 ₽</button>
+            <button id="l4" class="btn" style="display:none" onclick="buy(4, 10000)">LVL 5: 10000 ₽</button>
+            <button id="l5" class="btn" style="display:none" onclick="buy(5, 50000)">LVL 6: 50000 ₽</button>
+            <div id="max" style="display:none; padding:15px; font-weight:bold; color:var(--primary);">MAX CONFIGURATION REACHED</div>
         </div>
 
-        <button id="reb-btn" class="btn rebirth-btn" style="display:none" onclick="doRebirth()">SYSTEM REBIRTH (15000 RUB)</button>
+        <!-- Кнопки Ребиртов -->
+        <button id="rb1" class="btn rebirth-btn" style="display:none" onclick="rebirth(15000, 2)">REBIRTH x2 (15000 ₽)</button>
+        <button id="rb2" class="btn rebirth-btn" style="display:none" onclick="rebirth(50000, 3)">REBIRTH x3 (50000 ₽)</button>
 
-        <div class="footer">TELEBANK PREMIUM BUILDS. ALL RIGHTS RESERVED.</div>
+        <p class="tag" style="margin-top:40px">NeoBank Evolution © 2026</p>
     </div>
 
     <script>
-        let balance = 0;
-        let currentLvl = 0;
-        let rebirths = 0;
-        
-        // База: 100, 200, 300, 400
-        const basePowers = [100, 200, 300, 400];
+        let balance = 0, level = 0, multiplier = 1;
+        const powers =;
 
-        function login() {
-            const val = document.getElementById('user-name').value;
-            if(val) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('bank-screen').style.display = 'block';
-                document.getElementById('client-name').innerText = val;
-                refreshUI();
+        function init() {
+            const n = document.getElementById('username').value;
+            if(n) {
+                document.getElementById('scr-auth').style.display='none';
+                document.getElementById('scr-game').style.display='block';
+                document.getElementById('user-name').innerText = n;
+                update();
             }
         }
 
-        function handleTap() {
-            // Математика: База * (ребирты + 1)
-            // 0 ребиртов: 100, 200, 300, 400
-            // 1 ребирт: 200, 400, 600, 800
-            balance += basePowers[currentLvl] * (rebirths + 1);
-            refreshUI();
+        function tap() {
+            balance += powers[level] * multiplier;
+            update();
         }
 
-        function buy(nextLvl, cost) {
-            if(balance >= cost) {
-                balance -= cost;
-                currentLvl = nextLvl;
-                refreshUI();
+        function buy(l, price) {
+            if(balance >= price) {
+                balance -= price;
+                level = l;
+                update();
             }
         }
 
-        function doRebirth() {
-            if(balance >= 15000) {
+        function rebirth(price, newMult) {
+            if(balance >= price) {
                 balance = 0;
-                currentLvl = 0;
-                rebirths++;
-                refreshUI();
+                level = 0;
+                multiplier = newMult;
+                update();
             }
         }
 
-        function refreshUI() {
-            const multiplier = rebirths + 1;
+        function update() {
             document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
-            document.getElementById('power-display').innerText = basePowers[currentLvl] * multiplier;
-            document.getElementById('reb-count').innerText = rebirths;
+            document.getElementById('pwr').innerText = (powers[level] * multiplier).toLocaleString();
+            document.getElementById('mult-val').innerText = multiplier;
 
-            // Кнопки магазина
-            document.getElementById('lvl1').style.display = currentLvl === 0 ? 'block' : 'none';
-            document.getElementById('lvl2').style.display = currentLvl === 1 ? 'block' : 'none';
-            document.getElementById('lvl3').style.display = currentLvl === 2 ? 'block' : 'none';
-            document.getElementById('max-msg').style.display = currentLvl === 3 ? 'block' : 'none';
+            // Отображение кнопок уровней
+            for(let i=1; i<=5; i++) {
+                let b = document.getElementById('l'+i);
+                if(b) b.style.display = (level === i-1) ? 'block' : 'none';
+            }
+            document.getElementById('max').style.display = (level === 5) ? 'block' : 'none';
 
-            // Проверка денег
-            document.getElementById('lvl1').disabled = balance < 500;
-            document.getElementById('lvl2').disabled = balance < 1500;
-            document.getElementById('lvl3').disabled = balance < 5000;
+            // Доступность кнопок
+            const prices =;
+            for(let i=1; i<=5; i++) {
+                let b = document.getElementById('l'+i);
+                if(b) b.disabled = balance < prices[i-1];
+            }
 
-            // Кнопка ребирта
-            const rbBtn = document.getElementById('reb-btn');
-            rbBtn.style.display = (balance >= 10000 || rebirths > 0) ? 'block' : 'none';
-            rbBtn.disabled = balance < 15000;
+            // Логика Ребиртов
+            const rb1 = document.getElementById('rb1');
+            const rb2 = document.getElementById('rb2');
+            
+            // Первый ребирт (показываем если мультипликатор 1)
+            if(multiplier === 1) {
+                rb1.style.display = (balance >= 10000) ? 'block' : 'none';
+                rb1.disabled = balance < 15000;
+                rb2.style.display = 'none';
+            } 
+            // Второй ребирт (показываем если уже есть x2)
+            else if(multiplier === 2) {
+                rb1.style.display = 'none';
+                rb2.style.display = (balance >= 30000) ? 'block' : 'none';
+                rb2.disabled = balance < 50000;
+            } else {
+                rb1.style.display = 'none';
+                rb2.style.display = 'none';
+            }
         }
     </script>
 </body>
