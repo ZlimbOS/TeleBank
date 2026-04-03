@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Winter Ultimate x400</title>
+    <title>TeleBank | Winter Immortal x5000</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
@@ -16,23 +16,23 @@
         .card { 
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
             padding: 30px; border-radius: 30px; text-align: center; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.9); width: 350px; 
+            box-shadow: 0 0 100px rgba(0,255,136,0.15); width: 360px; 
             border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
-        .money-val { font-size: 2.2rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        .money-val { font-size: 2rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
         .coin-btn { 
             width: 130px; height: 130px; 
             background: radial-gradient(circle, #ffd700, #ff8c00); 
             border-radius: 50%; margin: 20px auto; cursor: pointer; 
             display: flex; justify-content: center; align-items: center; 
-            font-size: 65px; box-shadow: 0 0 40px rgba(255, 165, 0, 0.4); 
+            font-size: 65px; box-shadow: 0 0 50px rgba(255, 165, 0, 0.3); 
             transition: 0.1s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
         .coin-btn:active { transform: scale(0.9); }
         button.game-btn { 
             width: 100%; padding: 15px; border-radius: 12px; border: none; 
-            margin-top: 10px; font-weight: bold; cursor: pointer; 
+            margin-top: 8px; font-weight: bold; cursor: pointer; 
             text-transform: uppercase; transition: 0.2s;
         }
         .u-btn { background: var(--p); color: #000; }
@@ -41,7 +41,7 @@
         .plus { 
             position: absolute; color: var(--p); font-weight: bold; 
             animation: moveUp 0.8s forwards; pointer-events: none; 
-            font-size: 1.3rem; z-index: 150; text-shadow: 0 0 5px #000;
+            font-size: 1.2rem; z-index: 150; text-shadow: 0 0 5px #000;
         }
         @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
     </style>
@@ -51,7 +51,7 @@
 <canvas id="snow-box"></canvas>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK ULTIMATE v.MAX</div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK WINTER IMMORTAL</div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     
@@ -65,47 +65,57 @@
 </div>
 
 <script>
-    // 1. КОНФИГУРАЦИЯ БАЗЫ (Строго 11 уровней и ребирхи)
-    const DATA = {
-        powers: [100, 200, 300, 400, 1000, 1500, 3000, 15000, 35000, 2000000, 600000000],
-        costs: [500, 1500, 5000, 10000, 50000, 150000, 1000000, 2500000, 50000000, 250000000000],
-        rebirths: [
-            { cost: 15000, mult: 2, name: "x2" },
-            { cost: 1000000, mult: 10, name: "x10" },
-            { cost: 100000000, mult: 100, name: "x100" },
-            { cost: 250000000000, mult: 200, name: "x200" },
-            { cost: 2000000000000, mult: 400, name: "SUPREME x400" }
-        ]
-    };
-
-    let state = { b: 0, l: 0, m: 1 };
-
-    // Загрузка
-    const saved = localStorage.getItem('tb_ultra_v6');
-    if (saved) Object.assign(state, JSON.parse(saved));
-
-    // Умное сокращение чисел
+    // 1. УЛЬТРА-ФОРМАТИРОВАНИЕ
     function f(n) {
+        if (n >= 1e15) return (n / 1e15).toFixed(3) + " КВАДР";
         if (n >= 1e12) return (n / 1e12).toFixed(2) + " ТРЛН";
         if (n >= 1e9) return (n / 1e9).toFixed(2) + " МЛРД";
         if (n >= 1e6) return (n / 1e6).toFixed(1) + " МЛН";
         return Math.floor(n).toLocaleString();
     }
 
-    // Логика дохода
-    function getPower() { return DATA.powers[state.l] * state.m; }
+    // 2. БАЗА ДАННЫХ
+    const POWERS =; // 12-й уровень дает x1000 от базы 2М
+    const COSTS =; // 12-й стоит 500 ТРЛН
 
-    // Авто-доход (с 10 уровня - индекс 9)
+    const REBIRTHS = [
+        { c: 1000000, m: 10, n: "x10" },
+        { c: 100000000, m: 100, n: "x100" },
+        { c: 250000000000, m: 200, n: "x200" },
+        { c: 2000000000000, m: 400, n: "x400" },
+        { c: 15000000000000000, m: 5000, n: "OMEGA x5000" } // 15 Квадриллионов
+    ];
+
+    let state = { b: 0, l: 0, m: 1 };
+    const S_KEY = 'tb_immortal_v7';
+
+    // Загрузка
+    function load() {
+        const saved = localStorage.getItem(S_KEY);
+        if (saved) {
+            const data = JSON.parse(saved);
+            state.b = data.b || 0;
+            state.l = data.l || 0;
+            state.m = data.m || 1;
+        }
+    }
+    function save() { localStorage.setItem(S_KEY, JSON.stringify(state)); }
+
+    load();
+
+    // 3. ДОХОД
+    function getP() { return POWERS[state.l] * state.m; }
+
     setInterval(() => {
         if (state.l >= 9) {
-            state.b += getPower();
+            state.b += getP();
             refresh();
+            save(); // Сохранение каждую секунду при авто-доходе
         }
     }, 1000);
 
-    // Клик
-    document.getElementById('coin').onclick = function(e) {
-        let gain = getPower();
+    document.getElementById('coin').onclick = (e) => {
+        let gain = getP();
         state.b += gain;
         const anim = document.createElement('div');
         anim.className = 'plus';
@@ -115,53 +125,50 @@
         document.body.appendChild(anim);
         setTimeout(() => anim.remove(), 800);
         refresh();
+        save();
     };
 
-    // Покупки
+    // 4. МАГАЗИН
     window.buyL = () => {
-        let price = DATA.costs[state.l];
-        if (state.b >= price) {
-            state.b -= price; state.l++; save(); refresh();
+        if (state.b >= COSTS[state.l]) {
+            state.b -= COSTS[state.l]; state.l++; save(); refresh();
         }
     };
 
     window.buyR = (i) => {
-        let rb = DATA.rebirths[i];
-        if (state.b >= rb.cost) {
-            state.b = 0; state.l = 0; state.m = rb.mult; save(); refresh();
+        if (state.b >= REBIRTHS[i].c) {
+            state.b = 0; state.l = 0; state.m = REBIRTHS[i].m; save(); refresh();
         }
     };
 
-    function save() { localStorage.setItem('tb_ultra_v6', JSON.stringify(state)); }
-
+    // 5. ОБНОВЛЕНИЕ ЭКРАНА
     function refresh() {
         document.getElementById('bal').innerText = f(state.b) + " ₽";
         document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         
-        const isA = state.l >= 9;
+        let isA = state.l >= 9;
         document.getElementById('inc-lbl').innerText = isA ? "АВТО-ДОХОД:" : "ДОХОД:";
-        document.getElementById('inc-val').innerText = f(getPower()) + (isA ? " /СЕК" : " /ТАП");
+        document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
         document.getElementById('inc-val').style.color = isA ? "gold" : "var(--p)";
 
-        // Улучшение
         const uA = document.getElementById('u-area');
-        if (state.l < DATA.costs.length) {
-            let p = DATA.costs[state.l];
-            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < p ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(p)} ₽</button>`;
+        if (state.l < COSTS.length) {
+            let pr = COSTS[state.l];
+            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < pr ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(pr)} ₽</button>`;
         } else {
-            uA.innerHTML = "<div style='color:gold; padding:10px; font-weight:bold;'>МАКС. УРОВЕНЬ ДОСТИГНУТ 👑</div>";
+            uA.innerHTML = "<div style='color:gold; padding:10px; font-weight:bold;'>MAX IMMORTAL LEVEL 👑</div>";
         }
 
-        // Ребирх
         const rA = document.getElementById('r-area');
-        let next = DATA.rebirths.findIndex(r => r.mult > state.m);
-        if (next !== -1) {
-            let rb = DATA.rebirths[next];
-            rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < rb.cost ? 'disabled' : ''}>REBIRTH ${rb.name} (${f(rb.cost)} ₽)</button>`;
+        let nR = REBIRTHS.findIndex(r => r.m > state.m);
+        if (nR !== -1) {
+            let rb = REBIRTHS[nR];
+            rArea = `<button class="game-btn r-btn" onclick="buyR(${nR})" ${state.b < rb.c ? 'disabled' : ''}>REBIRTH ${rb.n} (${f(rb.c)} ₽)</button>`;
+            rA.innerHTML = rArea;
         } else { rA.innerHTML = ""; }
     }
 
-    // Снег (без изменений)
+    // 6. СНЕГ
     const canvas = document.getElementById('snow-box');
     const ctx = canvas.getContext('2d');
     let flakes = [];
