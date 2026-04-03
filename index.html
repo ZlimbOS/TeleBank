@@ -8,14 +8,14 @@
         :root {
             --bg: #000000;
             --accent: #ffffff;
-            --gray: #888888;
-            --dark-border: #1a1a1a;
+            --muted: #555555;
+            --border: #1a1a1a;
         }
 
         body {
             background-color: var(--bg);
             color: var(--accent);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -25,29 +25,36 @@
             letter-spacing: 2px;
         }
 
-        .container { width: 380px; padding: 40px; border: 1px solid var(--dark-border); }
+        .container { 
+            width: 380px; 
+            padding: 40px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
 
-        h1 { font-size: 26px; font-weight: 900; margin: 0; letter-spacing: 4px; }
-        .tagline { color: var(--gray); font-size: 10px; margin-bottom: 40px; }
+        h1 { font-size: 24px; font-weight: 900; margin: 0; letter-spacing: 5px; }
+        .subtitle { color: var(--muted); font-size: 9px; margin-bottom: 40px; }
 
         input {
             width: 100%;
             background: transparent;
-            border: 1px solid var(--dark-border);
+            border: 1px solid var(--border);
             padding: 15px;
             color: white;
             margin-bottom: 20px;
             box-sizing: border-box;
             outline: none;
+            font-size: 11px;
         }
 
+        /* Белые кнопки с черным текстом как в ArtemPC */
         .btn {
             background: var(--accent);
             color: black;
             border: none;
             padding: 14px;
             font-weight: 900;
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
@@ -55,139 +62,141 @@
         }
 
         .btn:hover { opacity: 0.8; }
-        .btn:disabled { background: #222; color: #555; cursor: not-allowed; }
+        .btn:disabled { background: #111; color: #333; cursor: not-allowed; }
 
-        /* Кнопка Ребирта выделяется */
+        /* Специальная кнопка Ребирта */
         .rebirth-btn {
-            background: #fff;
-            border: 1px solid #fff;
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
             margin-top: 30px;
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
         }
+        .rebirth-btn:hover { background: var(--accent); color: black; }
 
-        .stats-box { border-top: 1px solid var(--dark-border); margin-top: 30px; padding-top: 20px; }
-        .label { color: var(--gray); font-size: 9px; margin-bottom: 5px; }
+        .stats-section { border-top: 1px solid var(--border); margin-top: 30px; padding-top: 20px; }
+        .label { color: var(--muted); font-size: 8px; margin-bottom: 5px; }
         .value { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
 
-        .tap-zone {
+        .tap-box {
             margin: 30px 0;
             height: 120px;
-            border: 1px solid var(--dark-border);
+            border: 1px solid var(--border);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 45px;
+            font-size: 40px;
             cursor: pointer;
-            transition: 0.1s;
+            user-select: none;
         }
-        .tap-zone:active { background: #0a0a0a; transform: scale(0.98); }
+        .tap-box:active { background: #080808; transform: scale(0.99); }
 
-        .footer { margin-top: 50px; color: #333; font-size: 9px; }
+        .footer { margin-top: 50px; color: #222; font-size: 8px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
-    <!-- ВХОД -->
-    <div id="reg-screen" class="container">
+    <!-- РЕГИСТРАЦИЯ -->
+    <div id="auth" class="container">
         <h1>TELEBANK</h1>
-        <p class="tagline">ONLY POWER. 2026 EDITION</p>
-        <input type="text" id="username" placeholder="ENTER CLIENT NAME">
-        <button class="btn" onclick="init()">OPEN ACCOUNT</button>
+        <p class="subtitle">PREMIUM ASSET MANAGEMENT</p>
+        <input type="text" id="name" placeholder="CLIENT NAME...">
+        <button class="btn" onclick="login()">INITIALIZE</button>
     </div>
 
-    <!-- ИНТЕРФЕЙС -->
-    <div id="main-screen" class="container" style="display:none;">
-        <h1 id="user-display">CLIENT</h1>
-        <p class="tagline">REBIRTHS: <span id="reb-val">0</span> / SYSTEM ONLINE</p>
+    <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
+    <div id="bank" class="container" style="display:none;">
+        <h1 id="display-name">CLIENT</h1>
+        <p class="subtitle">REBIRTHS: <span id="reb-display">0</span> | 2026 EDITION</p>
 
-        <div class="stats-box">
-            <div class="label">CURRENT ASSETS</div>
-            <div class="value"><span id="balance">0</span> RUB</div>
+        <div class="stats-section">
+            <div class="label">CURRENT BALANCE</div>
+            <div class="value"><span id="bal">0</span> RUB</div>
             
-            <div class="label">POWER PER TAP</div>
-            <div class="value">+<span id="pwr">100</span></div>
+            <div class="label">MINING POWER</div>
+            <div class="value">+<span id="pwr">100</span> / TAP</div>
         </div>
 
-        <div class="tap-zone" onclick="tap()">💵</div>
+        <div class="tap-box" onclick="makeTap()">💵</div>
 
-        <div id="shop">
-            <div class="label">EXPANSION MODULES</div>
-            <button id="u1" class="btn" onclick="buy(1, 500)">LVL 2: 500 RUB</button>
-            <button id="u2" class="btn" style="display:none" onclick="buy(2, 1500)">LVL 3: 1500 RUB</button>
-            <button id="u3" class="btn" style="display:none" onclick="buy(3, 5000)">LVL 4: 5000 RUB</button>
-            <div id="max-msg" style="display:none; text-align:center; font-size:10px; color:var(--gray); margin:15px 0;">MAX CONFIGURATION REACHED</div>
+        <div id="market">
+            <div class="label">HARDWARE UPGRADES</div>
+            <button id="lvl1" class="btn" onclick="buy(1, 500)">LEVEL 2: 500 RUB</button>
+            <button id="lvl2" class="btn" style="display:none" onclick="buy(2, 1500)">LEVEL 3: 1500 RUB</button>
+            <button id="lvl3" class="btn" style="display:none" onclick="buy(3, 5000)">LEVEL 4: 5000 RUB</button>
+            <div id="max-info" style="display:none; text-align:center; font-size:9px; color:var(--muted); margin:15px 0;">MAX LEVEL REACHED</div>
         </div>
 
-        <button id="reb-btn" class="btn rebirth-btn" style="display:none" onclick="rebirth()">INITIATE REBIRTH (15000 RUB)</button>
+        <button id="reb-btn" class="btn rebirth-btn" style="display:none" onclick="doRebirth()">REBIRTH SYSTEM (15000 RUB)</button>
 
         <div class="footer">
             TELEBANK PREMIUM BUILDS. ALL RIGHTS RESERVED.<br>
-            STAY POWERFUL.
+            SECURE TERMINAL 04-A2
         </div>
     </div>
 
     <script>
-        let balance = 0;
-        let level = 0;
-        let rebirths = 0;
-        
-        // Базовые значения силы тапа (умножаются на ребирт)
-        const powers = [100, 200, 300, 400];
+        let cash = 0;
+        let currentLvl = 0;
+        let rebirthCount = 0;
 
-        function init() {
-            const name = document.getElementById('username').value;
-            if(name) {
-                document.getElementById('reg-screen').style.display = 'none';
-                document.getElementById('main-screen').style.display = 'block';
-                document.getElementById('user-display').innerText = name;
-                update();
+        // Твои настройки: 100, 200, 300, 400 базы
+        const baseValues = [100, 200, 300, 400];
+
+        function login() {
+            const val = document.getElementById('name').value;
+            if(val) {
+                document.getElementById('auth').style.display = 'none';
+                document.getElementById('bank').style.display = 'block';
+                document.getElementById('display-name').innerText = val;
+                refresh();
             }
         }
 
-        function tap() {
-            // Множитель: 1 ребирт делает 1 лвл = 200, 4 лвл = 800 и т.д.
-            balance += powers[level] * (rebirths + 1);
-            update();
+        function makeTap() {
+            // Математика: База * (количество ребиртов + 1)
+            // При 1 ребирте: Лвл1 = 100*2=200, Лвл3 = 300*2=600 (или 400*2=800 на лвл 4)
+            cash += baseValues[currentLvl] * (rebirthCount + 1);
+            refresh();
         }
 
-        function buy(newLevel, price) {
-            if(balance >= price) {
-                balance -= price;
-                level = newLevel;
-                update();
+        function buy(next, price) {
+            if(cash >= price) {
+                cash -= price;
+                currentLvl = next;
+                refresh();
             }
         }
 
-        function rebirth() {
-            if(balance >= 15000) {
-                balance = 0;
-                level = 0;
-                rebirths++;
-                update();
+        function doRebirth() {
+            if(cash >= 15000) {
+                cash = 0;
+                currentLvl = 0;
+                rebirthCount++;
+                refresh();
             }
         }
 
-        function update() {
-            const mult = rebirths + 1;
-            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
-            document.getElementById('pwr').innerText = powers[level] * mult;
-            document.getElementById('reb-val').innerText = rebirths;
+        function refresh() {
+            const mult = rebirthCount + 1;
+            document.getElementById('bal').innerText = Math.floor(cash).toLocaleString();
+            document.getElementById('pwr').innerText = baseValues[currentLvl] * mult;
+            document.getElementById('reb-display').innerText = rebirthCount;
 
-            // Управление кнопками уровней
-            document.getElementById('u1').style.display = level === 0 ? 'block' : 'none';
-            document.getElementById('u2').style.display = level === 1 ? 'block' : 'none';
-            document.getElementById('u3').style.display = level === 2 ? 'block' : 'none';
-            document.getElementById('max-msg').style.display = level === 3 ? 'block' : 'none';
+            // Отображение кнопок улучшений
+            document.getElementById('lvl1').style.display = currentLvl === 0 ? 'block' : 'none';
+            document.getElementById('lvl2').style.display = currentLvl === 1 ? 'block' : 'none';
+            document.getElementById('lvl3').style.display = currentLvl === 2 ? 'block' : 'none';
+            document.getElementById('max-info').style.display = currentLvl === 3 ? 'block' : 'none';
 
-            // Проверка возможности покупки
-            document.getElementById('u1').disabled = balance < 500;
-            document.getElementById('u2').disabled = balance < 1500;
-            document.getElementById('u3').disabled = balance < 5000;
+            // Активность кнопок
+            document.getElementById('lvl1').disabled = cash < 500;
+            document.getElementById('lvl2').disabled = cash < 1500;
+            document.getElementById('lvl3').disabled = cash < 5000;
 
-            // Кнопка ребирта (показывается если баланс > 10к, активна на 15к)
+            // Кнопка ребирта
             const rb = document.getElementById('reb-btn');
-            rb.style.display = (balance >= 10000 || rebirths > 0) ? 'block' : 'none';
-            rb.disabled = balance < 15000;
+            rb.style.display = (cash >= 10000 || rebirthCount > 0) ? 'block' : 'none';
+            rb.disabled = cash < 15000;
         }
     </script>
 </body>
