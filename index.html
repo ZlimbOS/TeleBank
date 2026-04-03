@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 2 Admin Edition</title>
+    <title>TeleBank | Season 2 Ultra Save</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; --accent: #ff3e3e; --gold: #ffd700; }
         body { 
@@ -14,7 +14,6 @@
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
-        /* СЕЗОН 2 */
         .season-header {
             font-size: 2.5rem; font-weight: 900; color: #ffffff;
             text-transform: uppercase; letter-spacing: 8px; margin-bottom: 15px;
@@ -51,7 +50,7 @@
         button:active { transform: translateY(2px); box-shadow: none; }
         button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
         
-        /* КРАСИВАЯ АДМИН ПАНЕЛЬ СЛЕВА */
+        /* ADMIN PANEL */
         #admin-panel {
             display: none; position: fixed; top: 50%; left: 5%; transform: translateY(-50%);
             background: rgba(10, 15, 30, 0.98); backdrop-filter: blur(30px);
@@ -64,31 +63,13 @@
 
         .adm-header { font-size: 0.8rem; color: var(--gold); letter-spacing: 3px; font-weight: 900; margin-bottom: 15px; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 10px; }
         .adm-label { font-size: 0.65rem; color: #9ca3af; text-align: left; display: block; margin: 10px 0 2px 5px; text-transform: uppercase; }
-        
-        .admin-input { 
-            width: 100%; padding: 12px; border-radius: 10px; 
-            border: 1px solid #374151; background: #030712; color: #fff; 
-            outline: none; box-sizing: border-box; text-align: center; font-weight: bold;
-        }
-        
-        .adm-set-btn { 
-            width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--gold); 
-            background: none; color: var(--gold); font-size: 0.7rem; font-weight: 900;
-            cursor: pointer; transition: 0.2s; margin-top: 5px;
-        }
+        .admin-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #374151; background: #030712; color: #fff; outline: none; box-sizing: border-box; text-align: center; font-weight: bold; }
+        .adm-set-btn { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--gold); background: none; color: var(--gold); font-size: 0.7rem; font-weight: 900; cursor: pointer; transition: 0.2s; margin-top: 5px; }
         .adm-set-btn:hover { background: var(--gold); color: #000; }
-
-        .admin-toggle { 
-            position: absolute; bottom: 20px; left: 20px; opacity: 0.1; 
-            cursor: pointer; font-size: 1.4rem; z-index: 100; transition: 0.5s;
-        }
+        .admin-toggle { position: absolute; bottom: 20px; left: 20px; opacity: 0.1; cursor: pointer; font-size: 1.4rem; z-index: 100; transition: 0.5s; }
         .admin-toggle:hover { opacity: 0.8; transform: rotate(180deg); }
 
-        .plus { 
-            position: absolute; color: var(--p); font-weight: bold; 
-            animation: moveUp 0.4s forwards; pointer-events: none; 
-            font-size: 1.2rem; z-index: 150; text-shadow: 0 0 5px #000;
-        }
+        .plus { position: absolute; color: var(--p); font-weight: bold; animation: moveUp 0.4s forwards; pointer-events: none; font-size: 1.2rem; z-index: 150; text-shadow: 0 0 5px #000; }
         @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
     </style>
 </head>
@@ -103,7 +84,7 @@
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     <div class="coin-btn" id="coin">🪙</div>
     <div id="shop">
-        <p style="font-size: 0.85rem;"><span id="inc-lbl">ДОХОД:</span> <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
+        <p style="font-size: 0.85rem;">ДОХОД: <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
         <div id="u-area"></div>
         <div id="r-area"></div>
     </div>
@@ -113,7 +94,6 @@
 
 <div id="admin-panel">
     <div class="adm-header">ADMIN DASHBOARD</div>
-    
     <div style="text-align: left;">
         <span class="adm-label">Установить баланс</span>
         <input type="text" id="adm-money" class="admin-input" placeholder="Напр. 1000000">
@@ -127,49 +107,44 @@
         <input type="text" id="adm-mult" class="admin-input" placeholder="Множитель">
         <button class="adm-set-btn" onclick="admSetMult()">УСТАНОВИТЬ X</button>
     </div>
-
     <button class="game-btn" style="background: #ef4444; color: white; margin-top: 25px; height: 40px; padding: 0;" onclick="closeAdmin()">ЗАКРЫТЬ</button>
 </div>
 
 <script>
-    // 1. КОНФИГУРАЦИЯ (BigInt)
-    const POWERS = [
-        100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 
-        1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n
-    ];
-    const COSTS = [
-        1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 
-        1000000000n, 10000000000n, 100000000000n, 15000000000000000n
-    ];
-    const REBIRTHS = [
-        { c: 1000000n, m: 10n, n: "x10" },
-        { c: 1000000000n, m: 100n, n: "x100" },
-        { c: 2000000000000n, m: 400n, n: "x400" },
-        { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" } 
-    ];
+    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
+    const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n];
+    const REBIRTHS = [{ c: 1000000n, m: 10n, n: "x10" }, { c: 1000000000n, m: 100n, n: "x100" }, { c: 2000000000000n, m: 400n, n: "x400" }, { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" }];
 
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
-    const SAVE_KEY = 'telebank_s2_final_v_admin';
+    const SAVE_KEY = 'telebank_s2_stable_save_v1';
 
-    // 2. СОХРАНЕНИЕ / ЗАГРУЗКА
+    // --- СИСТЕМА СОХРАНЕНИЯ (ИСПРАВЛЕНО) ---
     function load() {
         const saved = localStorage.getItem(SAVE_KEY);
         if (saved) {
             try {
                 const d = JSON.parse(saved);
-                state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
-            } catch(e) {}
+                state.b = BigInt(d.b || "0");
+                state.l = parseInt(d.l || 0);
+                state.m = BigInt(d.m || "1");
+            } catch(e) { console.error("Load failed"); }
         }
         refresh();
     }
+
     function save() {
-        localStorage.setItem(SAVE_KEY, JSON.stringify({
-            b: state.b.toString(), l: state.l, m: state.m.toString()
-        }));
+        const data = {
+            b: state.b.toString(),
+            l: state.l,
+            m: state.m.toString()
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     }
 
-    // 3. ФОРМАТИРОВАНИЕ
+    // Авто-сохранение каждые 3 секунды
+    setInterval(save, 3000);
+
     function f(n) {
         let num = BigInt(n);
         if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
@@ -181,44 +156,15 @@
 
     function getP() { return POWERS[state.l] * state.m; }
 
-    // --- АДМИН-ЛОГИКА (НОВЫЙ КЛЮЧ) ---
-    function openAdmin() {
-        if (prompt("ENTER ADMIN KEY:") === "u8aqAPMzXrUkSbD5") {
-            document.getElementById('admin-panel').style.display = 'block';
-        }
-    }
+    // --- АДМИН ПАНЕЛЬ ---
+    function openAdmin() { if (prompt("ADMIN KEY:") === "u8aqAPMzXrUkSbD5") document.getElementById('admin-panel').style.display = 'block'; }
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
-    
-    function admSetMoney() {
-        let v = document.getElementById('adm-money').value;
-        if(v !== "") {
-            try {
-                state.b = BigInt(v); refresh(); save();
-                alert("Баланс установлен!");
-            } catch(e) { alert("Ошибка числа!"); }
-        }
-    }
-    
-    function admSetLvl() {
-        let v = parseInt(document.getElementById('adm-lvl').value);
-        if(v >= 1 && v <= POWERS.length) {
-            state.l = v - 1; refresh(); save();
-            alert("Уровень изменен!");
-        }
-    }
-    
-    function admSetMult() {
-        let v = document.getElementById('adm-mult').value;
-        if(v !== "") {
-            try {
-                state.m = BigInt(v); refresh(); save();
-                alert("Множитель изменен!");
-            } catch(e) { alert("Ошибка!"); }
-        }
-    }
+    function admSetMoney() { let v = document.getElementById('adm-money').value; if(v !== "") { state.b = BigInt(v); refresh(); save(); } }
+    function admSetLvl() { let v = parseInt(document.getElementById('adm-lvl').value); if(v >= 1 && v <= POWERS.length) { state.l = v - 1; refresh(); save(); } }
+    function admSetMult() { let v = document.getElementById('adm-mult').value; if(v !== "") { state.m = BigInt(v); refresh(); save(); } }
 
     // --- ИГРОВОЙ ЦИКЛ ---
-    setInterval(() => { if (state.l >= 9) { state.b += getP(); refresh(); save(); } }, 1000);
+    setInterval(() => { if (state.l >= 9) { state.b += getP(); refresh(); } }, 1000);
 
     document.getElementById('coin').onclick = (e) => {
         if (wait) return;
@@ -226,10 +172,7 @@
         state.b += getP();
         const c = document.getElementById('coin');
         c.classList.add('wait');
-        
-        // Турбо-клик 0.1 сек
         setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100);
-
         const anim = document.createElement('div');
         anim.className = 'plus';
         anim.innerText = "+" + f(getP());
@@ -247,17 +190,13 @@
         document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         let isA = state.l >= 9;
         document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
-        
         const uA = document.getElementById('u-area');
-        if (state.l < COSTS.length) {
-            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>УЛУЧШИТЬ: ${f(COSTS[state.l])} ₽</button>`;
-        } else uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX SEASON 2 LEVEL 👑</div>";
-        
+        if (state.l < COSTS.length) uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>УЛУЧШИТЬ: ${f(COSTS[state.l])} ₽</button>`;
+        else uA.innerHTML = "<div style='color:gold; font-weight:bold;'>MAX LEVEL 👑</div>";
         const rA = document.getElementById('r-area');
         let next = REBIRTHS.findIndex(r => r.m > state.m);
-        if (next !== -1) {
-            rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < REBIRTHS[next].c ? 'disabled' : ''}>REBIRTH ${REBIRTHS[next].n} (${f(REBIRTHS[next].c)} ₽)</button>`;
-        } else rA.innerHTML = "";
+        if (next !== -1) rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < REBIRTHS[next].c ? 'disabled' : ''}>REBIRTH ${REBIRTHS[next].n} (${f(REBIRTHS[next].c)} ₽)</button>`;
+        else rA.innerHTML = "";
     }
 
     // Снег
