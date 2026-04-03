@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 2 Turbo Fix</title>
-    <script src="https://jsdelivr.net"></script>
-    <script src="https://jsdelivr.net"></script>
+    <title>TeleBank | Season 2 Admin Edition</title>
     <style>
-        :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
+        :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; --accent: #ff3e3e; }
         body { 
             font-family: 'Segoe UI', sans-serif; background: var(--bg); 
             color: white; display: flex; flex-direction: column; justify-content: center; 
@@ -16,73 +14,78 @@
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
-        /* ОКНО АВТОРИЗАЦИИ */
-        #auth-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); display: flex; justify-content: center;
-            align-items: center; z-index: 1000;
+        .update-badge {
+            position: absolute; top: 20px; right: 20px;
+            background: var(--accent); color: white; padding: 8px 15px;
+            border-radius: 50px; font-size: 0.7rem; font-weight: 900;
+            box-shadow: 0 0 15px var(--accent); z-index: 100;
+            animation: pulse 1.5s infinite;
         }
-        .auth-card {
-            background: #111827; padding: 30px; border-radius: 25px;
-            border: 2px solid var(--p); width: 320px; text-align: center;
-            box-shadow: 0 0 50px rgba(0,255,136,0.3);
-        }
-        .auth-input {
-            width: 90%; padding: 12px; margin: 10px 0; border-radius: 10px;
-            border: 1px solid #374151; background: #eef2ff; color: #000; 
-            outline: none; font-weight: bold; font-size: 1rem;
-        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        .season-header { font-size: 2.5rem; font-weight: 900; letter-spacing: 8px; margin-bottom: 15px; z-index: 10; text-shadow: 0 0 20px #fff; }
+        .season-header {
+            font-size: 2.5rem; font-weight: 900; color: #ffffff;
+            text-transform: uppercase; letter-spacing: 8px; margin-bottom: 15px;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.5); z-index: 10;
+        }
 
         .card { 
-            background: rgba(15, 23, 42, 0.95); padding: 25px; border-radius: 30px; 
-            text-align: center; width: 340px; border: 1px solid rgba(255,255,255,0.1); z-index: 10;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
+            padding: 30px; border-radius: 30px; text-align: center; 
+            box-shadow: 0 0 100px rgba(0,255,136,0.1); width: 340px; 
+            border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
-        .money-val { font-size: 1.8rem; font-weight: 900; color: var(--p); margin: 5px 0; }
+        .money-val { font-size: 1.8rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
         
         .coin-btn { 
-            width: 120px; height: 120px; background: radial-gradient(circle, #ffd700, #ff8c00); 
-            border-radius: 50%; margin: 15px auto; cursor: pointer; display: flex; 
-            justify-content: center; align-items: center; font-size: 60px; 
-            transition: 0.1s; border: 5px solid rgba(255,255,255,0.2);
+            width: 130px; height: 130px; 
+            background: radial-gradient(circle, #ffd700, #ff8c00); 
+            border-radius: 50%; margin: 20px auto; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 65px; box-shadow: 0 0 50px rgba(255, 165, 0, 0.3); 
+            transition: 0.05s; border: 5px solid rgba(255,255,255,0.2);
+            position: relative; z-index: 20;
         }
+        .coin-btn:active { transform: scale(0.9); }
+        .coin-btn.wait { opacity: 0.7; pointer-events: none; }
 
         button.game-btn { 
             width: 100%; padding: 15px; border-radius: 12px; border: none; 
-            margin-top: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
-            transition: 0.1s;
+            margin-top: 10px; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; transition: 0.2s;
         }
         .u-btn { background: var(--p); color: #000; box-shadow: 0 4px 0 #009b52; }
         .r-btn { background: var(--rb); color: white; box-shadow: 0 4px 0 #b56dbf; }
+        button:active { transform: translateY(2px); box-shadow: none; }
+        button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
         
-        /* Анимация нажатия - ТЕПЕРЬ ОНА ЕСТЬ */
-        button.game-btn:active { transform: translateY(3px); box-shadow: none !important; opacity: 0.8; }
-        .coin-btn:active { transform: scale(0.9); }
-        
-        #logout-btn { position: absolute; bottom: 20px; right: 20px; background: none; border: 1px solid red; color: red; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 100; }
+        /* АДМИН ПАНЕЛЬ */
+        #admin-panel {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #111827; border: 2px solid gold; padding: 25px;
+            border-radius: 20px; z-index: 500; width: 280px; text-align: center;
+            box-shadow: 0 0 50px #000;
+        }
+        .admin-input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #374151; background: #1f2937; color: white; }
+        .admin-toggle { position: absolute; bottom: 15px; left: 15px; opacity: 0.3; cursor: pointer; font-size: 1.2rem; z-index: 100; transition: 0.3s; }
+        .admin-toggle:hover { opacity: 1; }
+
+        .plus { 
+            position: absolute; color: var(--p); font-weight: bold; 
+            animation: moveUp 0.4s forwards; pointer-events: none; 
+            font-size: 1.2rem; z-index: 150; text-shadow: 0 0 5px #000;
+        }
+        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-80px); opacity: 0; } }
     </style>
 </head>
 <body>
 
 <canvas id="snow-box"></canvas>
-
-<!-- ОКНО АВТОРИЗАЦИИ -->
-<div id="auth-overlay">
-    <div class="auth-card">
-        <h2 style="margin:0 0 20px 0; color:var(--p); font-size: 1.5rem; letter-spacing: 2px;">ВХОД / РЕГИСТРАЦИЯ</h2>
-        <input type="text" id="username" class="auth-input" placeholder="Ваш логин">
-        <input type="password" id="password" class="auth-input" placeholder="Ваш пароль">
-        <button class="game-btn u-btn" id="login-click">ВОЙТИ</button>
-        <button class="game-btn r-btn" id="reg-click">СОЗДАТЬ АККАУНТ</button>
-        <p id="status" style="font-size: 0.8rem; margin-top:20px; color: #9ca3af">Система готова</p>
-    </div>
-</div>
-
+<div class="update-badge">ADMIN UPDATE</div>
 <div class="season-header">СЕЗОН 2</div>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">АККАУНТ: <span id="u-name">?</span></div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK TURBO</div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     <div class="coin-btn" id="coin">🪙</div>
@@ -93,183 +96,134 @@
     </div>
 </div>
 
-<button id="logout-btn" onclick="logout()">ВЫЙТИ</button>
+<!-- Скрытая кнопка входа в админку -->
+<div class="admin-toggle" onclick="openAdmin()">⚙️</div>
+
+<!-- Окно админ-панели -->
+<div id="admin-panel">
+    <h3 style="margin-top:0; color: gold;">ADMIN CONSOLE</h3>
+    <p style="font-size: 0.7rem;">Введите сумму (например: 1000000)</p>
+    <input type="text" id="admin-amount" class="admin-input" placeholder="Сумма...">
+    <button class="game-btn u-btn" onclick="addMoney()">ВЫДАТЬ ₽</button>
+    <button class="game-btn r-btn" style="background: #374151" onclick="closeAdmin()">ЗАКРЫТЬ</button>
+</div>
 
 <script>
-    // 1. НАСТРОЙКА СЕТИ (Добавлено больше реле для скорости)
-    const gun = Gun({
-        peers: [
-            'https://herokuapp.com',
-            'https://peer.ooo',
-            'https://herokuapp.com'
-        ]
-    });
-    const user = gun.user().recall({localStorage: true});
-
     const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
     const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n];
-    const REBIRTHS = [{ c: 1000000n, m: 10n, n: "x10" }, { c: 2000000000000n, m: 400n, n: "x400" }, { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" }];
+    const REBIRTHS = [
+        { c: 1000000n, m: 10n, n: "x10" },
+        { c: 1000000000n, m: 100n, n: "x100" },
+        { c: 2000000000000n, m: 400n, n: "x400" },
+        { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" } 
+    ];
 
-    let state = { b: 0n, l: 0, m: 1n, name: "" };
-    let tapWait = false;
+    let state = { b: 0n, l: 0, m: 1n };
+    let wait = false;
+    const SAVE_KEY = 'telebank_s2_admin_final';
 
-    // 2. ИСПРАВЛЕННЫЙ ВХОД И РЕГИСТРАЦИЯ
-    document.getElementById('reg-click').onclick = () => {
-        const u = document.getElementById('username').value;
-        const p = document.getElementById('password').value;
-        if(u.length < 3) return alert("Логин слишком короткий!");
-        
-        document.getElementById('status').innerText = "Регистрация в сети...";
-        user.create(u, p, (ack) => {
-            if(ack.err) {
-                alert("Ошибка: " + ack.err);
-                document.getElementById('status').innerText = "Попробуйте другое имя";
-            } else {
-                alert("Аккаунт создан! Нажмите ВОЙТИ");
-                document.getElementById('status').innerText = "Готово к входу";
-            }
-        });
-    };
-
-    document.getElementById('login-click').onclick = () => {
-        const u = document.getElementById('username').value;
-        const p = document.getElementById('password').value;
-        document.getElementById('status').innerText = "Авторизация...";
-        
-        user.auth(u, p, (ack) => {
-            if(ack.err) {
-                alert("Неверный логин или пароль!");
-                document.getElementById('status').innerText = "Ошибка входа";
-            } else {
-                // Если вход успешен, убираем окно сразу
-                document.getElementById('auth-overlay').style.display = 'none';
-                location.reload(); 
-            }
-        });
-    };
-
-    // ПРОВЕРКА СОСТОЯНИЯ ПРИ ЗАГРУЗКЕ
-    if(user.is) {
-        document.getElementById('auth-overlay').style.display = 'none';
-        user.get('alias').once(n => {
-            state.name = n;
-            document.getElementById('u-name').innerText = n;
-            // Загрузка игровых данных
-            user.get('game_season2_final').once(d => {
-                if(d) {
-                    state.b = BigInt(d.b || "0");
-                    state.l = d.l || 0;
-                    state.m = BigInt(d.m || "1");
-                }
-                refresh();
-            });
-        });
-    }
-
-    function save() {
-        if(user.is) {
-            user.get('game_season2_final').put({
-                b: state.b.toString(),
-                l: state.l,
-                m: state.m.toString()
-            });
+    function load() {
+        const saved = localStorage.getItem(SAVE_KEY);
+        if (saved) {
+            try {
+                const d = JSON.parse(saved);
+                state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
+            } catch(e) {}
         }
+        refresh();
+    }
+    function save() {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({
+            b: state.b.toString(), l: state.l, m: state.m.toString()
+        }));
     }
 
-    function logout() { user.leave(); localStorage.clear(); location.reload(); }
-
-    // 3. ГЕЙМПЛЕЙ И ФОРМАТИРОВАНИЕ
     function f(n) {
         let num = BigInt(n);
         if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
         if (num >= 1e12) return (Number(num / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
-        if (num >= 1e9) return (Number(num / 1000000n) / 1000).toFixed(1) + " МЛРД";
+        if (num >= 1e9) return (Number(num / 1000000n) / 1000).toFixed(2) + " МЛРД";
+        if (num >= 1e6) return (Number(num / 1000n) / 1000).toFixed(1) + " МЛН";
         return num.toLocaleString();
     }
 
-    // Авто-доход раз в секунду
-    setInterval(() => {
-        if (state.l >= 9 && user.is) {
-            state.b += POWERS[state.l] * state.m;
-            refresh();
-            save();
-        }
-    }, 1000);
+    function getP() { return POWERS[state.l] * state.m; }
 
-    // Тап (защита 0.1с)
+    // АДМИН ФУНКЦИИ
+    function openAdmin() {
+        let key = prompt("Введите секретный ключ:");
+        if (key === "67SIXSEVENADMINPANEL") {
+            document.getElementById('admin-panel').style.display = 'block';
+        } else {
+            alert("Неверный ключ!");
+        }
+    }
+
+    function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+
+    function addMoney() {
+        let val = document.getElementById('admin-amount').value;
+        if (val) {
+            try {
+                state.b += BigInt(Math.floor(Number(val)));
+                alert("Успешно начислено!");
+                refresh(); save();
+            } catch(e) { alert("Введите корректное число"); }
+        }
+    }
+
+    // ИГРА
+    setInterval(() => { if (state.l >= 9) { state.b += getP(); refresh(); save(); } }, 1000);
+
     document.getElementById('coin').onclick = (e) => {
-        if (tapWait || !user.is) return;
-        tapWait = true;
-        state.b += POWERS[state.l] * state.m;
-        setTimeout(() => { tapWait = false; }, 100);
-        refresh();
-        save();
+        if (wait) return;
+        wait = true;
+        state.b += getP();
+        const c = document.getElementById('coin');
+        c.classList.add('wait');
+        setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100);
+
+        const anim = document.createElement('div');
+        anim.className = 'plus';
+        anim.innerText = "+" + f(getP());
+        anim.style.left = e.clientX + "px"; anim.style.top = e.clientY + "px";
+        document.body.appendChild(anim);
+        setTimeout(() => anim.remove(), 400);
+        refresh(); save();
     };
 
-    window.buyL = () => {
-        if (state.b >= COSTS[state.l]) {
-            state.b -= COSTS[state.l];
-            state.l++;
-            save();
-            refresh();
-        }
-    };
-
-    window.buyR = (i) => {
-        if (state.b >= REBIRTHS[i].c) {
-            state.b = 0n;
-            state.l = 0;
-            state.m = REBIRTHS[i].m;
-            save();
-            refresh();
-        }
-    };
+    window.buyL = () => { if (state.b >= COSTS[state.l]) { state.b -= COSTS[state.l]; state.l++; save(); refresh(); } };
+    window.buyR = (i) => { if (state.b >= REBIRTHS[i].c) { state.b = 0n; state.l = 0; state.m = REBIRTHS[i].m; save(); refresh(); } };
 
     function refresh() {
         document.getElementById('bal').innerText = f(state.b) + " ₽";
         document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         let isA = state.l >= 9;
-        document.getElementById('inc-val').innerText = f(POWERS[state.l] * state.m) + (isA ? " /СЕК" : " /ТАП");
+        document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
         
-        const uArea = document.getElementById('u-area');
+        const uA = document.getElementById('u-area');
         if (state.l < COSTS.length) {
-            let cost = COSTS[state.l];
-            uArea.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < cost ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(cost)} ₽</button>`;
-        } else {
-            uArea.innerHTML = "MAX LEVEL 👑";
-        }
+            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(COSTS[state.l])} ₽</button>`;
+        } else uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX LEVEL 👑</div>";
         
-        const rArea = document.getElementById('r-area');
-        let nextIdx = REBIRTHS.findIndex(r => r.m > state.m);
-        if (nextIdx !== -1) {
-            let rb = REBIRTHS[nextIdx];
-            rArea.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${nextIdx})" ${state.b < rb.c ? 'disabled' : ''}>REBIRTH ${rb.n} (${f(rb.c)} ₽)</button>`;
-        } else {
-            rArea.innerHTML = "";
-        }
+        const rA = document.getElementById('r-area');
+        let next = REBIRTHS.findIndex(r => r.m > state.m);
+        if (next !== -1) {
+            rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < REBIRTHS[next].c ? 'disabled' : ''}>REBIRTH ${REBIRTHS[next].n} (${f(REBIRTHS[next].c)} ₽)</button>`;
+        } else rA.innerHTML = "";
     }
 
-    // Снежинки
-    const canvas = document.getElementById('snow-box');
-    const ctx = canvas.getContext('2d');
-    let flakes = [];
+    // Снег
+    const canvas = document.getElementById('snow-box'); const ctx = canvas.getContext('2d'); let flakes = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
-    for(let i=0; i<30; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2, s: Math.random()*1+0.2});
+    for(let i=0; i<40; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2, s: Math.random()*1+0.2});
     function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        flakes.forEach(f => {
-            ctx.moveTo(f.x, f.y);
-            ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
-            f.y += f.s;
-            if(f.y > canvas.height) f.y = -5;
-        });
-        ctx.fill();
-        requestAnimationFrame(draw);
+        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "white"; ctx.beginPath();
+        flakes.forEach(f => { ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); f.y += f.s; if(f.y > canvas.height) f.y = -5; });
+        ctx.fill(); requestAnimationFrame(draw);
     }
-    draw();
+    draw(); load();
 </script>
 </body>
 </html>
