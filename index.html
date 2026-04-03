@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Winter Immortal x5000</title>
+    <title>TeleBank | Fast Immortal x5000</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
@@ -20,16 +20,18 @@
             border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
         .money-val { font-size: 1.8rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        
         .coin-btn { 
             width: 130px; height: 130px; 
             background: radial-gradient(circle, #ffd700, #ff8c00); 
             border-radius: 50%; margin: 20px auto; cursor: pointer; 
             display: flex; justify-content: center; align-items: center; 
             font-size: 65px; box-shadow: 0 0 50px rgba(255, 165, 0, 0.3); 
-            transition: 0.2s; border: 5px solid rgba(255,255,255,0.2);
+            transition: 0.1s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
-        .coin-btn.wait { opacity: 0.3; transform: scale(0.9) rotate(10deg); filter: grayscale(1); cursor: not-allowed; }
+        /* Анимация быстрой перезарядки */
+        .coin-btn.wait { opacity: 0.5; transform: scale(0.95); filter: grayscale(0.5); cursor: not-allowed; }
         
         button.game-btn { 
             width: 100%; padding: 15px; border-radius: 12px; border: none; 
@@ -39,12 +41,13 @@
         .u-btn { background: var(--p); color: #000; }
         .r-btn { background: var(--rb); color: white; }
         button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
+        
         .plus { 
             position: absolute; color: var(--p); font-weight: bold; 
-            animation: moveUp 0.8s forwards; pointer-events: none; 
+            animation: moveUp 0.6s forwards; pointer-events: none; 
             font-size: 1.2rem; z-index: 150; text-shadow: 0 0 5px #000;
         }
-        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
+        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -52,12 +55,11 @@
 <canvas id="snow-box"></canvas>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK IMMORTAL v.MAX</div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK FAST v.MAX</div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     
     <div class="coin-btn" id="coin">🪙</div>
-    <div id="cd-text" style="font-size: 0.6rem; color: #ff4444; height: 12px; opacity: 0;">АНТИ-КЛИК: 0.5s</div>
     
     <div id="shop">
         <p style="font-size: 0.85rem;"><span id="inc-lbl">ДОХОД:</span> <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
@@ -67,13 +69,9 @@
 </div>
 
 <script>
-    // Использование строк для BigInt, чтобы не терять точность
-    const POWERS = [
-        100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n
-    ];
-    const COSTS = [
-        1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 500000000000000n
-    ];
+    // Настройки BigInt
+    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n];
+    const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 500000000000000n];
     const REBIRTHS = [
         { c: 1000000n, m: 10n, n: "x10" },
         { c: 1000000000n, m: 100n, n: "x100" },
@@ -84,32 +82,29 @@
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
 
-    // Загрузка
-    const saved = localStorage.getItem('tb_final_stable');
+    const saved = localStorage.getItem('tb_fast_stable');
     if (saved) {
         const d = JSON.parse(saved);
-        state.b = BigInt(d.b);
-        state.l = d.l;
-        state.m = BigInt(d.m);
+        state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
     }
 
     function save() {
-        localStorage.setItem('tb_final_stable', JSON.stringify({
+        localStorage.setItem('tb_fast_stable', JSON.stringify({
             b: state.b.toString(), l: state.l, m: state.m.toString()
         }));
     }
 
     function f(n) {
-        if (n >= 1e15) return (Number(n / 1000000000000n) / 1000).toFixed(3) + " КВАДР";
-        if (n >= 1e12) return (Number(n / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
-        if (n >= 1e9) return (Number(n / 1000000n) / 1000).toFixed(2) + " МЛРД";
-        if (n >= 1e6) return (Number(n / 1000n) / 1000).toFixed(1) + " МЛН";
-        return n.toLocaleString();
+        let num = BigInt(n);
+        if (num >= 1000000000000000n) return (Number(num / 1000000000000n) / 1000).toFixed(3) + " КВАДР";
+        if (num >= 1000000000000n) return (Number(num / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
+        if (num >= 1000000000n) return (Number(num / 1000000n) / 1000).toFixed(2) + " МЛРД";
+        if (num >= 1000000n) return (Number(num / 1000n) / 1000).toFixed(1) + " МЛН";
+        return num.toLocaleString();
     }
 
     function getP() { return POWERS[state.l] * state.m; }
 
-    // Авто-доход
     setInterval(() => {
         if (state.l >= 9) {
             state.b += getP();
@@ -118,7 +113,6 @@
         }
     }, 1000);
 
-    // Клик
     document.getElementById('coin').onclick = (e) => {
         if (wait) return;
         wait = true;
@@ -127,11 +121,10 @@
         state.b += gain;
 
         const c = document.getElementById('coin');
-        const ct = document.getElementById('cd-text');
         c.classList.add('wait');
-        ct.style.opacity = 1;
 
-        setTimeout(() => { wait = false; c.classList.remove('wait'); ct.style.opacity = 0; }, 500);
+        // Кулдаун 0.2 секунды
+        setTimeout(() => { wait = false; c.classList.remove('wait'); }, 200);
 
         const anim = document.createElement('div');
         anim.className = 'plus';
@@ -139,7 +132,7 @@
         anim.style.left = e.clientX + "px";
         anim.style.top = e.clientY + "px";
         document.body.appendChild(anim);
-        setTimeout(() => anim.remove(), 800);
+        setTimeout(() => anim.remove(), 600);
         
         refresh();
         save();
@@ -181,7 +174,6 @@
         } else { rA.innerHTML = ""; }
     }
 
-    // Снег
     const canvas = document.getElementById('snow-box');
     const ctx = canvas.getContext('2d');
     let flakes = [];
