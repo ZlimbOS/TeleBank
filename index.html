@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Winter Ultimate x200</title>
+    <title>TeleBank | Winter Ultimate x400</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
@@ -25,13 +25,13 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.8); width: 340px; 
             border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
-        .money-val { font-size: 2.8rem; font-weight: 900; color: var(--p); margin: 5px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        .money-val { font-size: 2.4rem; font-weight: 900; color: var(--p); margin: 5px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
         .coin-btn { 
-            width: 150px; height: 150px; 
+            width: 140px; height: 140px; 
             background: radial-gradient(circle, #ffd700, #ff8c00); 
-            border-radius: 50%; margin: 25px auto; cursor: pointer; 
+            border-radius: 50%; margin: 20px auto; cursor: pointer; 
             display: flex; justify-content: center; align-items: center; 
-            font-size: 80px; box-shadow: 0 0 40px rgba(255, 165, 0, 0.4); 
+            font-size: 70px; box-shadow: 0 0 40px rgba(255, 165, 0, 0.4); 
             transition: 0.1s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
@@ -47,7 +47,7 @@
         .plus { 
             position: absolute; color: var(--p); font-weight: bold; 
             animation: moveUp 0.8s forwards; pointer-events: none; 
-            font-size: 1.8rem; z-index: 150; text-shadow: 0 0 5px #000;
+            font-size: 1.5rem; z-index: 150; text-shadow: 0 0 5px #000;
         }
         @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-130px); opacity: 0; } }
     </style>
@@ -68,12 +68,20 @@
         <p style="font-size: 0.9rem;"><span id="tap-power-label">ДОХОД:</span> <span id="tap-power" style="color: var(--p)">100</span> ₽</p>
         <div id="upgrade-area"></div>
         <div id="rebirth-area"></div>
-        <div id="max-info" style="display:none; color: gold; font-weight:bold; margin-top:15px;">MAX POWER: 2M/SEC 👑</div>
+        <div id="max-info" style="display:none; color: gold; font-weight:bold; margin-top:15px;">SUPREME POWER REACHED 👑</div>
     </div>
 </div>
 
 <script>
-    // 1. КОНФИГУРАЦИЯ (10 уровней и ребирхи)
+    // Форматирование больших чисел
+    function f(n) {
+        if (n >= 1e12) return (n / 1e12).toFixed(2) + " ТРЛН";
+        if (n >= 1e9) return (n / 1e9).toFixed(2) + " МЛРД";
+        if (n >= 1e6) return (n / 1e6).toFixed(1) + " МЛН";
+        return n.toLocaleString();
+    }
+
+    // 1. ДАННЫЕ (Добавлен 11 лвл и Ребирх 2 трлн)
     const POWERS =; 
     const COSTS =; 
     const REBIRTHS = [
@@ -81,49 +89,48 @@
         { c: 100000, m: 5, n: "x5" },
         { c: 1000000, m: 10, n: "x10" },
         { c: 50000000, m: 100, n: "ULTRA x100" },
-        { c: 250000000, m: 200, n: "MYTHIC x200" }
+        { c: 250000000, m: 200, n: "MYTHIC x200" },
+        { c: 2000000000000, m: 400, n: "SUPREME x400" } // Новый за 2 трлн
     ];
 
-    // 2. СОСТОЯНИЕ (Загрузка)
     let state = { b: 0, l: 0, m: 1, p: false };
-    const SAVE_KEY = 'telebank_v4_save';
+    const SAVE_KEY = 'telebank_v5_save';
 
     function loadGame() {
         const saved = localStorage.getItem(SAVE_KEY);
         if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                state = Object.assign(state, parsed);
-            } catch(e) { console.error("Ошибка загрузки!"); }
+            try { Object.assign(state, JSON.parse(saved)); } catch(e) {}
         }
     }
-
-    function saveGame() {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-    }
+    function saveGame() { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
 
     loadGame();
 
-    // 3. ПАССИВНЫЙ ДОХОД (10 уровень = индекс 9)
+    // 2. ПАССИВНЫЙ ДОХОД (Начиная с 10 уровня)
     setInterval(() => {
         if (state.l >= 9) {
-            state.b += POWERS * state.m;
+            // На 10 лвле: 2 млн, на 11 лвле: x300 от базы
+            let autoGain = (state.l === 9 ? 2000000 : 2000000 * 300) * state.m;
+            state.b += autoGain;
             refresh();
         }
     }, 1000);
 
-    // Авто-сохранение каждые 5 сек
     setInterval(saveGame, 5000);
 
-    // 4. ЛОГИКА ТАПА
+    // 3. ТАПЫ
     const coin = document.getElementById('main-coin');
     coin.onclick = function(e) {
-        let gain = POWERS[state.l] * state.m;
+        let currentPower = POWERS[state.l];
+        // Если это 11 уровень, применяем доп. множитель x300
+        if (state.l === 10) currentPower = 2000000 * 300;
+        
+        let gain = currentPower * state.m;
         state.b += gain;
         
         const anim = document.createElement('div');
         anim.className = 'plus';
-        anim.innerText = "+" + gain.toLocaleString();
+        anim.innerText = "+" + f(gain);
         anim.style.left = e.clientX + "px";
         anim.style.top = e.clientY + "px";
         document.body.appendChild(anim);
@@ -132,7 +139,7 @@
         refresh();
     };
 
-    // 5. МАГАЗИН
+    // 4. МАГАЗИН
     window.buyUpgrade = function() {
         if (state.b >= COSTS[state.l]) {
             state.b -= COSTS[state.l];
@@ -151,30 +158,31 @@
     }
 
     document.getElementById('promo-btn').onclick = function() {
-        if (state.p) return alert("Промокод использован!");
-        let code = prompt("Введите промокод:");
+        if (state.p) return alert("Использован!");
+        let code = prompt("Промокод:");
         if (code && code.toUpperCase() === "РУБЦОВ") {
-            state.b += 100000; state.p = true;
-            saveGame();
-            alert("УСПЕХ! +100,000 ₽");
-            refresh();
+            state.b += 1000000; state.p = true; // Даем 1 млн за масштаб
+            saveGame(); alert("УСПЕХ! +1,000,000 ₽"); refresh();
         }
     };
 
-    // 6. ИНТЕРФЕЙС
+    // 5. ОБНОВЛЕНИЕ
     function refresh() {
-        document.getElementById('balance').innerText = Math.floor(state.b).toLocaleString();
+        document.getElementById('balance').innerText = f(Math.floor(state.b));
         document.getElementById('mult-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         
         const pwr = document.getElementById('tap-power');
         const lbl = document.getElementById('tap-power-label');
         
+        let currentPower = POWERS[state.l];
+        if (state.l === 10) currentPower = 2000000 * 300;
+
         if (state.l < 9) {
-            pwr.innerText = (POWERS[state.l] * state.m).toLocaleString() + " ₽/ТАП";
+            pwr.innerText = f(currentPower * state.m) + " ₽/ТАП";
             lbl.innerText = "ДОХОД:";
             pwr.style.color = "var(--p)";
         } else {
-            pwr.innerText = (POWERS * state.m).toLocaleString() + " ₽/СЕК";
+            pwr.innerText = f(currentPower * state.m) + " ₽/СЕК";
             pwr.style.color = "gold";
             lbl.innerText = "АВТО-ДОХОД:";
         }
@@ -183,7 +191,7 @@
 
         const uArea = document.getElementById('upgrade-area');
         if (state.l < COSTS.length) {
-            uArea.innerHTML = `<button class="game-btn u-btn" onclick="buyUpgrade()">LVL ${state.l + 2} ЗА ${COSTS[state.l].toLocaleString()} ₽</button>`;
+            uArea.innerHTML = `<button class="game-btn u-btn" onclick="buyUpgrade()">LVL ${state.l + 2} ЗА ${f(COSTS[state.l])} ₽</button>`;
             uArea.querySelector('button').disabled = state.b < COSTS[state.l];
         } else {
             uArea.innerHTML = "";
@@ -194,12 +202,12 @@
         const nextR = REBIRTHS.findIndex(r => r.m > state.m);
         if (nextR !== -1) {
             const rb = REBIRTHS[nextR];
-            rArea.innerHTML = `<button class="game-btn r-btn" onclick="doRebirth(${nextR})">REBIRTH ${rb.n} (${rb.c.toLocaleString()} ₽)</button>`;
+            rArea.innerHTML = `<button class="game-btn r-btn" onclick="doRebirth(${nextR})">REBIRTH ${rb.n} (${f(rb.c)} ₽)</button>`;
             rArea.querySelector('button').disabled = state.b < rb.c;
         } else { rArea.innerHTML = ""; }
     }
 
-    // 7. ВИЗУАЛ (Снег)
+    // 6. СНЕГ
     const canvas = document.getElementById('snow-box');
     const ctx = canvas.getContext('2d');
     let flakes = [];
