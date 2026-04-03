@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeoBank | Instant</title>
+    <title>NeoBank | Absolute Edition</title>
     <style>
         :root {
             --primary: #00ff88;
             --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.9);
+            --card: rgba(30, 41, 59, 0.95);
         }
 
         body {
@@ -21,6 +21,7 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            user-select: none;
         }
 
         .container {
@@ -31,20 +32,20 @@
             border-radius: 24px;
             text-align: center;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            width: 340px;
+            width: 350px;
         }
 
-        h2 { font-size: 2rem; margin: 0 0 10px; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
+        h2 { font-size: 2.2rem; margin: 0 0 10px; color: var(--primary); text-transform: uppercase; letter-spacing: 3px; }
 
         .stats-box {
             background: rgba(0,0,0,0.4);
-            padding: 15px;
-            border-radius: 16px;
+            padding: 20px;
+            border-radius: 20px;
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .balance-value { font-size: 2.2rem; font-weight: bold; color: var(--primary); display: block; }
+        .balance-value { font-size: 2.3rem; font-weight: bold; color: var(--primary); display: block; }
         
         .coin {
             width: 140px; height: 140px;
@@ -52,9 +53,9 @@
             border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
             font-size: 70px; margin: 20px auto;
-            cursor: pointer; user-select: none;
+            cursor: pointer;
             box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
-            transition: 0.1s;
+            transition: transform 0.05s;
         }
         .coin:active { transform: scale(0.9); }
 
@@ -62,14 +63,15 @@
             background: linear-gradient(135deg, #00ff88, #00bd65);
             color: #052e16;
             border: none;
-            padding: 15px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 14px;
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            margin-top: 10px;
+            margin-top: 12px;
             text-transform: uppercase;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
 
         button:hover:not(:disabled) { transform: scale(1.02); }
@@ -80,11 +82,11 @@
         .plus-one {
             position: absolute; color: var(--primary); font-weight: bold;
             animation: floatUp 0.8s ease-out forwards; pointer-events: none;
-            z-index: 100;
+            z-index: 100; font-size: 1.5rem;
         }
         @keyframes floatUp {
             0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100px); opacity: 0; }
+            100% { transform: translateY(-120px); opacity: 0; }
         }
 
         .reset-link { color: #ff4444; font-size: 10px; margin-top: 25px; cursor: pointer; opacity: 0.4; display: block; }
@@ -94,44 +96,66 @@
 
     <div class="container">
         <h2>NeoBank</h2>
-        <p style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 15px;">TERMINAL v4.0 ONLINE</p>
+        <div style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 15px; letter-spacing: 1px;">PREMIUM CLICKER v5.0</div>
         
         <div class="stats-box">
-            <span style="font-size: 0.7rem; opacity: 0.6;">БАЛАНС</span>
-            <span class="balance-value"><span id="balance">0</span> ₽</span>
-            <div id="multiplier" style="color: #f093fb; font-size: 0.8rem; margin-top: 5px; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
+            <span style="font-size: 0.7rem; opacity: 0.6;">ВАШ БАЛАНС</span>
+            <span class="balance-value"><span id="ui-balance">0</span> ₽</span>
+            <div id="ui-mult" style="color: #f093fb; font-size: 0.8rem; margin-top: 5px; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
         </div>
 
-        <div class="coin" onclick="tap(event)">💰</div>
+        <div class="coin" id="main-coin">🪙</div>
 
         <div id="shop">
-            <p style="font-size: 0.8rem; margin-bottom: 10px;">ДОХОД: <span id="per-tap" style="color: var(--primary)">100</span> ₽</p>
+            <p style="font-size: 0.8rem; margin-bottom: 10px;">ДОХОД: <span id="ui-tap" style="color: var(--primary)">100</span> ₽ / ТАП</p>
             
-            <div id="lvl-btn-container"></div>
+            <div id="upgrade-area">
+                <!-- Кнопка лвла будет тут -->
+            </div>
             
-            <button id="rb1" class="rebirth-btn" onclick="rebirth(15000, 2)">REBIRTH x2 (15000 ₽)</button>
-            <button id="rb2" class="rebirth-btn" onclick="rebirth(50000, 3)">REBIRTH x3 (50000 ₽)</button>
-            <button id="rb3" class="rebirth-btn" onclick="rebirth(200000, 4)">REBIRTH x4 (200000 ₽)</button>
+            <button id="rb1" class="rebirth-btn">REBIRTH x2 (15000 ₽)</button>
+            <button id="rb2" class="rebirth-btn">REBIRTH x3 (50000 ₽)</button>
+            <button id="rb3" class="rebirth-btn">REBIRTH x4 (200000 ₽)</button>
             
-            <div id="max-info" style="display:none; color: gold; font-weight: bold; margin-top: 15px;">MAX LEVEL 👑</div>
+            <div id="max-msg" style="display:none; color: gold; font-weight: bold; margin-top: 15px; text-shadow: 0 0 10px rgba(255,215,0,0.5);">MAX LEVEL REACHED 👑</div>
         </div>
 
-        <span class="reset-link" onclick="reset()">СБРОСИТЬ ПРОГРЕСС</span>
+        <span class="reset-link" id="hard-reset">СБРОСИТЬ ВЕСЬ ПРОГРЕСС</span>
     </div>
 
     <script>
-        let game = { balance: 0, lvl: 0, mult: 1 };
-        const powers = [100, 200, 300, 400, 1000, 1500, 3000, 15000];
-        const costs = [500, 1500, 5000, 10000, 50000, 150000, 1000000];
+        // Данные игры
+        const POWERS = [100, 200, 300, 400, 1000, 1500, 3000, 15000];
+        const COSTS = [500, 1500, 5000, 10000, 50000, 150000, 1000000];
+
+        let state = {
+            balance: 0,
+            lvl: 0,
+            mult: 1
+        };
 
         // Загрузка
-        const saved = localStorage.getItem('neobank_vFinal');
-        if (saved) game = JSON.parse(saved);
+        const saved = localStorage.getItem('neobank_v5_save');
+        if (saved) {
+            try {
+                state = JSON.parse(saved);
+            } catch(e) { console.error("Ошибка загрузки"); }
+        }
 
-        function tap(e) {
-            let gain = powers[game.lvl] * game.mult;
-            game.balance += gain;
+        // Элементы
+        const balanceEl = document.getElementById('ui-balance');
+        const tapEl = document.getElementById('ui-tap');
+        const multEl = document.getElementById('ui-mult');
+        const coinBtn = document.getElementById('main-coin');
+        const upgArea = document.getElementById('upgrade-area');
+        const maxMsg = document.getElementById('max-msg');
+
+        // Клик
+        coinBtn.onclick = function(e) {
+            let gain = POWERS[state.lvl] * state.mult;
+            state.balance += gain;
             
+            // Текст +X
             const p = document.createElement('div');
             p.innerText = "+" + gain;
             p.className = 'plus-one';
@@ -140,53 +164,75 @@
             document.body.appendChild(p);
             setTimeout(() => p.remove(), 800);
             
-            update();
-        }
+            updateUI();
+        };
 
+        // Логика покупки
         function buy() {
-            if (game.balance >= costs[game.lvl]) {
-                game.balance -= costs[game.lvl];
-                game.lvl++;
-                update();
+            let cost = COSTS[state.lvl];
+            if (state.balance >= cost) {
+                state.balance -= cost;
+                state.lvl++;
+                updateUI();
             }
         }
 
-        function rebirth(price, m) {
-            if (game.balance >= price) {
-                game.balance = 0; game.lvl = 0; game.mult = m;
-                update();
+        // Логика ребирта
+        function rebirth(cost, m) {
+            if (state.balance >= cost) {
+                state.balance = 0;
+                state.lvl = 0;
+                state.mult = m;
+                updateUI();
             }
         }
 
-        function update() {
-            document.getElementById('balance').innerText = Math.floor(game.balance).toLocaleString();
-            document.getElementById('per-tap').innerText = (powers[game.lvl] * game.mult).toLocaleString();
-            document.getElementById('multiplier').innerText = "МНОЖИТЕЛЬ: x" + game.mult;
+        // Обновление UI
+        function updateUI() {
+            balanceEl.innerText = Math.floor(state.balance).toLocaleString();
+            tapEl.innerText = (POWERS[state.lvl] * state.mult).toLocaleString();
+            multEl.innerText = "МНОЖИТЕЛЬ: x" + state.mult;
 
-            const btnBox = document.getElementById('lvl-btn-container');
-            if (game.lvl < 7) {
-                btnBox.innerHTML = `<button onclick="buy()">УЛУЧШИТЬ ДО LVL ${game.lvl + 2} (${costs[game.lvl].toLocaleString()} ₽)</button>`;
-                btnBox.querySelector('button').disabled = game.balance < costs[game.lvl];
-                document.getElementById('max-info').style.display = 'none';
+            // Кнопка ЛВЛ
+            if (state.lvl < 7) {
+                upgArea.innerHTML = `<button id="upg-btn">УЛУЧШИТЬ ДО LVL ${state.lvl + 2} (${COSTS[state.lvl].toLocaleString()} ₽)</button>`;
+                const btn = document.getElementById('upg-btn');
+                btn.onclick = buy;
+                btn.disabled = state.balance < COSTS[state.lvl];
+                maxMsg.style.display = 'none';
             } else {
-                btnBox.innerHTML = "";
-                document.getElementById('max-info').style.display = 'block';
+                upgArea.innerHTML = "";
+                maxMsg.style.display = 'block';
             }
 
+            // Кнопки Ребирта
             const r1 = document.getElementById('rb1'), r2 = document.getElementById('rb2'), r3 = document.getElementById('rb3');
-            r1.style.display = (game.mult === 1 && game.balance >= 10000) ? 'block' : 'none';
-            r1.disabled = game.balance < 15000;
-            r2.style.display = (game.mult === 2 && game.balance >= 40000) ? 'block' : 'none';
-            r2.disabled = game.balance < 50000;
-            r3.style.display = (game.mult === 3 && game.balance >= 150000) ? 'block' : 'none';
-            r3.disabled = game.balance < 200000;
+            
+            r1.onclick = () => rebirth(15000, 2);
+            r2.onclick = () => rebirth(50000, 3);
+            r3.onclick = () => rebirth(200000, 4);
 
-            localStorage.setItem('neobank_vFinal', JSON.stringify(game));
+            r1.style.display = (state.mult === 1 && state.balance >= 8000) ? 'block' : 'none';
+            r1.disabled = state.balance < 15000;
+            
+            r2.style.display = (state.mult === 2 && state.balance >= 30000) ? 'block' : 'none';
+            r2.disabled = state.balance < 50000;
+
+            r3.style.display = (state.mult === 3 && state.balance >= 120000) ? 'block' : 'none';
+            r3.disabled = state.balance < 200000;
+
+            localStorage.setItem('neobank_v5_save', JSON.stringify(state));
         }
 
-        function reset() { if(confirm("Сбросить всё?")) { localStorage.clear(); location.reload(); } }
+        document.getElementById('hard-reset').onclick = function() {
+            if(confirm("Сбросить всё?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        };
 
-        update();
+        // Запуск
+        updateUI();
     </script>
 </body>
 </html>
