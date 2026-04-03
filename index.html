@@ -3,167 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Digital Assets</title>
+    <title>TeleBank | Rebirth Edition</title>
     <style>
-        :root {
-            --bg: #000000;
-            --accent: #ffffff;
-            --gray: #666666;
-            --dark-gray: #1a1a1a;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--accent);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .app-container { width: 380px; padding: 50px; border: 1px solid var(--dark-gray); }
-
-        h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 4px; }
-        .tagline { color: var(--gray); font-size: 10px; margin-bottom: 50px; }
-
-        /* Поле ввода */
-        input {
-            width: 100%;
-            background: transparent;
-            border: 1px solid var(--dark-gray);
-            padding: 18px;
-            color: white;
-            margin-bottom: 25px;
-            box-sizing: border-box;
-            outline: none;
-            font-size: 12px;
-            letter-spacing: 1px;
-        }
-
-        /* Кнопка "Купить/Регистрация" как на скрине */
-        .action-btn {
-            background: var(--accent);
-            color: black;
-            border: none;
-            padding: 15px 30px;
-            font-weight: 900;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.2s;
-            width: 100%;
-            display: block;
-        }
-
-        .action-btn:hover { background: #cccccc; }
-        .action-btn:disabled { background: #333; color: #555; cursor: not-allowed; }
-
-        /* Игровая панель */
-        .status-row { border-top: 1px solid var(--dark-gray); margin-top: 40px; padding-top: 25px; }
-        .label { color: var(--gray); font-size: 10px; margin-bottom: 5px; }
-        .data-value { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
-
-        /* Зона тапа */
-        .tap-zone {
-            margin: 40px 0;
-            height: 150px;
-            border: 1px solid var(--dark-gray);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 50px;
-            cursor: pointer;
-            transition: background 0.1s;
-        }
-        .tap-zone:active { background: var(--dark-gray); }
-
-        .footer-info { margin-top: 60px; color: #333; font-size: 9px; line-height: 1.6; }
+        :root { --bg: #000; --accent: #fff; --gray: #444; }
+        body { background: var(--bg); color: var(--accent); font-family: sans-serif; text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { width: 380px; padding: 40px; border: 1px solid #111; }
+        h1 { font-size: 24px; margin: 0; }
+        .tag { color: var(--gray); font-size: 10px; margin-bottom: 30px; }
+        input { width: 100%; background: none; border: 1px solid var(--gray); padding: 15px; color: #fff; margin-bottom: 20px; box-sizing: border-box; outline: none; }
+        .btn { background: var(--accent); color: #000; border: none; padding: 15px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
+        .btn:hover { opacity: 0.8; }
+        .btn:disabled { background: #222; color: #444; }
+        .rebirth-btn { background: #ffd700; color: #000; margin-top: 20px; }
+        .stats { border-top: 1px solid #111; margin-top: 30px; padding-top: 20px; }
+        .label { color: var(--gray); font-size: 9px; }
+        .val { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .tap-area { height: 120px; border: 1px solid #111; margin: 20px 0; display: flex; justify-content: center; align-items: center; font-size: 40px; cursor: pointer; user-select: none; }
+        .tap-area:active { background: #050505; }
     </style>
 </head>
 <body>
 
-    <!-- ЭКРАН ВХОДА -->
-    <div id="login-screen" class="app-container">
+    <!-- ВХОД -->
+    <div id="scr-reg" class="container">
         <h1>TELEBANK</h1>
-        <p class="tagline">ACCESSING SECURE TERMINAL...</p>
-        
-        <input type="text" id="user-input" placeholder="ENTER CLIENT NAME">
-        <button class="action-btn" onclick="initBank()">OPEN ACCOUNT</button>
+        <p class="tag">SECURE ACCESS</p>
+        <input type="text" id="nick" placeholder="CLIENT NAME">
+        <button class="btn" onclick="start()">INITIATE</button>
     </div>
 
-    <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
-    <div id="main-interface" class="app-container" style="display:none;">
-        <h1 id="client-id">CLIENT</h1>
-        <p class="tagline">TELEBANK ASSET MANAGEMENT / 2026</p>
+    <!-- ИНТЕРФЕЙС -->
+    <div id="scr-main" class="container" style="display:none;">
+        <h1 id="user-title">CLIENT</h1>
+        <p class="tag">REBIRTHS: <span id="reb-count">0</span> | v.2026</p>
 
-        <div class="status-row">
-            <div class="label">CURRENT ASSETS</div>
-            <div class="data-value"><span id="cash">0</span> RUB</div>
-            
-            <div class="label">MINING POWER</div>
-            <div class="data-value">+<span id="power">100</span> / TAP</div>
+        <div class="stats">
+            <div class="label">ASSETS</div>
+            <div class="val"><span id="bal">0</span> RUB</div>
+            <div class="label">POWER</div>
+            <div class="val">+<span id="pwr">100</span> / TAP</div>
         </div>
 
-        <div class="tap-zone" onclick="handleTap()">🪙</div>
+        <div class="tap-area" onclick="doTap()">🪙</div>
 
-        <div class="upgrades">
-            <div class="label">AVAILABLE EXPANSION</div>
-            <button id="lvl1" class="action-btn" onclick="buyUpg(1, 500, 200)">UPGRADE v1.0 (500 RUB)</button>
-            <button id="lvl2" class="action-btn" style="display:none;" onclick="buyUpg(2, 1500, 300)">UPGRADE v2.0 (1500 RUB)</button>
-            <div id="max-status" style="display:none; text-align: center; font-size: 11px; color: #00ff00;">SYSTEM STATUS: OPTIMIZED</div>
+        <div id="upg-list">
+            <button id="u1" class="btn" onclick="buy(1, 500, 200)">LVL 2 (500 RUB)</button>
+            <button id="u2" class="btn" style="display:none" onclick="buy(2, 1500, 300)">LVL 3 (1500 RUB)</button>
+            <button id="u3" class="btn" style="display:none" onclick="buy(3, 5000, 400)">LVL 4 (5000 RUB)</button>
+            <div id="max" style="display:none; text-align:center; font-size:10px; color:gold; margin:10px 0;">SYSTEM MAXED</div>
         </div>
 
-        <div class="footer-info">
-            TELEBANK PREMIUM BUILDS. ALL RIGHTS RESERVED.<br>
-            2026 EDITION. ENCRYPTED CONNECTION.
-        </div>
+        <button id="reb-btn" class="btn rebirth-btn" style="display:none" onclick="doRebirth()">REBIRTH (15000 RUB)</button>
+
+        <div class="tag" style="margin-top:40px">TELEBANK ALL RIGHTS RESERVED</div>
     </div>
 
     <script>
-        let balance = 0;
-        let powerPerClick = 100;
+        let balance = 0, level = 0, rebirths = 0;
+        const basePowers = [100, 200, 300, 400];
 
-        function initBank() {
-            const val = document.getElementById('user-input').value;
-            if (val) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-interface').style.display = 'block';
-                document.getElementById('client-id').innerText = val;
+        function start() {
+            const n = document.getElementById('nick').value;
+            if(n) {
+                document.getElementById('scr-reg').style.display='none';
+                document.getElementById('scr-main').style.display='block';
+                document.getElementById('user-title').innerText = n;
+                update();
             }
         }
 
-        function handleTap() {
-            balance += powerPerClick;
-            refresh();
+        function doTap() {
+            balance += basePowers[level] * (rebirths + 1);
+            update();
         }
 
-        function buyUpg(level, price, newPower) {
-            if (balance >= price) {
+        function buy(l, price, p) {
+            if(balance >= price) {
                 balance -= price;
-                powerPerClick = newPower;
-                if (level === 1) {
-                    document.getElementById('lvl1').style.display = 'none';
-                    document.getElementById('lvl2').style.display = 'block';
-                } else {
-                    document.getElementById('lvl2').style.display = 'none';
-                    document.getElementById('max-status').style.display = 'block';
-                }
-                refresh();
+                level = l;
+                update();
             }
         }
 
-        function refresh() {
-            document.getElementById('cash').innerText = balance.toLocaleString();
-            document.getElementById('power').innerText = powerPerClick;
-            
-            // Проверка кнопок
-            const btn1 = document.getElementById('lvl1');
-            const btn2 = document.getElementById('lvl2');
-            if(btn1) btn1.disabled = balance < 500;
-            if(btn2) btn2.disabled = balance < 1500;
+        function doRebirth() {
+            if(balance >= 15000) {
+                balance = 0; level = 0; rebirths++;
+                update();
+            }
+        }
+
+        function update() {
+            let mult = rebirths + 1;
+            document.getElementById('bal').innerText = Math.floor(balance).toLocaleString();
+            document.getElementById('pwr').innerText = basePowers[level] * mult;
+            document.getElementById('reb-count').innerText = rebirths;
+
+            // Кнопки уровней
+            document.getElementById('u1').style.display = level === 0 ? 'block' : 'none';
+            document.getElementById('u2').style.display = level === 1 ? 'block' : 'none';
+            document.getElementById('u3').style.display = level === 2 ? 'block' : 'none';
+            document.getElementById('max').style.display = level === 3 ? 'block' : 'none';
+
+            // Доступность покупки
+            document.getElementById('u1').disabled = balance < 500;
+            document.getElementById('u2').disabled = balance < 1500;
+            document.getElementById('u3').disabled = balance < 5000;
+
+            // Кнопка ребирта
+            const rb = document.getElementById('reb-btn');
+            rb.style.display = balance >= 10000 || rebirths > 0 ? 'block' : 'none';
+            rb.disabled = balance < 15000;
         }
     </script>
 </body>
