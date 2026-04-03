@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Winter Immortal Anti-Click</title>
+    <title>TeleBank | Winter Immortal x5000</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
@@ -19,9 +19,7 @@
             box-shadow: 0 0 100px rgba(0,255,136,0.1); width: 360px; 
             border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
-        .money-val { font-size: 2rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
-        
-        /* МОНЕТА И КУЛДАУН */
+        .money-val { font-size: 1.8rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
         .coin-btn { 
             width: 130px; height: 130px; 
             background: radial-gradient(circle, #ffd700, #ff8c00); 
@@ -31,12 +29,8 @@
             transition: 0.2s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
-        .coin-btn.wait { 
-            opacity: 0.4; transform: scale(0.9); cursor: not-allowed; 
-            filter: grayscale(0.8);
-        }
-        .coin-btn:active:not(.wait) { transform: scale(0.85); }
-
+        .coin-btn.wait { opacity: 0.3; transform: scale(0.9) rotate(10deg); filter: grayscale(1); cursor: not-allowed; }
+        
         button.game-btn { 
             width: 100%; padding: 15px; border-radius: 12px; border: none; 
             margin-top: 8px; font-weight: bold; cursor: pointer; 
@@ -58,12 +52,12 @@
 <canvas id="snow-box"></canvas>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK ANTI-CHEAT v.7</div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK IMMORTAL v.MAX</div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     
     <div class="coin-btn" id="coin">🪙</div>
-    <div id="cooldown-text" style="font-size: 0.7rem; color: #ff4444; height: 15px; opacity: 0;">ПЕРЕЗАРЯДКА...</div>
+    <div id="cd-text" style="font-size: 0.6rem; color: #ff4444; height: 12px; opacity: 0;">АНТИ-КЛИК: 0.5s</div>
     
     <div id="shop">
         <p style="font-size: 0.85rem;"><span id="inc-lbl">ДОХОД:</span> <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
@@ -73,66 +67,72 @@
 </div>
 
 <script>
-    function f(n) {
-        if (n >= 1e15) return (n / 1e15).toFixed(3) + " КВАДР";
-        if (n >= 1e12) return (n / 1e12).toFixed(2) + " ТРЛН";
-        if (n >= 1e9) return (n / 1e9).toFixed(2) + " МЛРД";
-        if (n >= 1e6) return (n / 1e6).toFixed(1) + " МЛН";
-        return Math.floor(n).toLocaleString();
-    }
-
-    // ДАННЫЕ (Добавлен 12-й лвл и Омега-ребиртх)
-    const POWERS = [100, 200, 300, 400, 1000, 1500, 3000, 15000, 35000, 2000000, 2000000 * 300, 2000000 * 1000]; 
-    const COSTS = [500, 1500, 5000, 10000, 50000, 150000, 1000000, 2500000, 50000000, 250000000000, 500000000000000];
-
+    // Использование строк для BigInt, чтобы не терять точность
+    const POWERS = [
+        100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n
+    ];
+    const COSTS = [
+        1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 500000000000000n
+    ];
     const REBIRTHS = [
-        { c: 1000000, m: 10, n: "x10" },
-        { c: 250000000000, m: 200, n: "x200" },
-        { c: 2000000000000, m: 400, n: "x400" },
-        { c: 15000000000000000, m: 5000, n: "OMEGA x5000" }
+        { c: 1000000n, m: 10n, n: "x10" },
+        { c: 1000000000n, m: 100n, n: "x100" },
+        { c: 2000000000000n, m: 400n, n: "x400" },
+        { c: 15000000000000000n, m: 5000n, n: "OMEGA x5000" }
     ];
 
-    let state = { b: 0, l: 0, m: 1 };
-    let isWaiting = false;
-    const S_KEY = 'tb_immortal_save_v7';
+    let state = { b: 0n, l: 0, m: 1n };
+    let wait = false;
 
-    function load() {
-        const saved = localStorage.getItem(S_KEY);
-        if (saved) Object.assign(state, JSON.parse(saved));
+    // Загрузка
+    const saved = localStorage.getItem('tb_final_stable');
+    if (saved) {
+        const d = JSON.parse(saved);
+        state.b = BigInt(d.b);
+        state.l = d.l;
+        state.m = BigInt(d.m);
     }
-    function save() { localStorage.setItem(S_KEY, JSON.stringify(state)); }
 
-    load();
+    function save() {
+        localStorage.setItem('tb_final_stable', JSON.stringify({
+            b: state.b.toString(), l: state.l, m: state.m.toString()
+        }));
+    }
 
-    // ПАССИВНЫЙ ДОХОД
+    function f(n) {
+        if (n >= 1e15) return (Number(n / 1000000000000n) / 1000).toFixed(3) + " КВАДР";
+        if (n >= 1e12) return (Number(n / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
+        if (n >= 1e9) return (Number(n / 1000000n) / 1000).toFixed(2) + " МЛРД";
+        if (n >= 1e6) return (Number(n / 1000n) / 1000).toFixed(1) + " МЛН";
+        return n.toLocaleString();
+    }
+
+    function getP() { return POWERS[state.l] * state.m; }
+
+    // Авто-доход
     setInterval(() => {
         if (state.l >= 9) {
-            state.b += POWERS[state.l] * state.m;
+            state.b += getP();
             refresh();
             save();
         }
     }, 1000);
 
-    // КЛИК С ЗАЩИТОЙ
-    const coin = document.getElementById('coin');
-    coin.onclick = (e) => {
-        if (isWaiting) return; // Блокировка клика
-
-        let gain = POWERS[state.l] * state.m;
+    // Клик
+    document.getElementById('coin').onclick = (e) => {
+        if (wait) return;
+        wait = true;
+        
+        let gain = getP();
         state.b += gain;
 
-        // Эффект кулдауна
-        isWaiting = true;
-        coin.classList.add('wait');
-        document.getElementById('cooldown-text').style.opacity = "1";
+        const c = document.getElementById('coin');
+        const ct = document.getElementById('cd-text');
+        c.classList.add('wait');
+        ct.style.opacity = 1;
 
-        setTimeout(() => {
-            isWaiting = false;
-            coin.classList.remove('wait');
-            document.getElementById('cooldown-text').style.opacity = "0";
-        }, 500); // 0.5 секунды
+        setTimeout(() => { wait = false; c.classList.remove('wait'); ct.style.opacity = 0; }, 500);
 
-        // Анимация
         const anim = document.createElement('div');
         anim.className = 'plus';
         anim.innerText = "+" + f(gain);
@@ -153,7 +153,7 @@
 
     window.buyR = (i) => {
         if (state.b >= REBIRTHS[i].c) {
-            state.b = 0; state.l = 0; state.m = REBIRTHS[i].m; save(); refresh();
+            state.b = 0n; state.l = 0; state.m = REBIRTHS[i].m; save(); refresh();
         }
     };
 
@@ -163,31 +163,31 @@
         
         let isA = state.l >= 9;
         document.getElementById('inc-lbl').innerText = isA ? "АВТО-ДОХОД:" : "ДОХОД:";
-        document.getElementById('inc-val').innerText = f(POWERS[state.l] * state.m) + (isA ? " /СЕК" : " /ТАП");
+        document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
 
         const uA = document.getElementById('u-area');
         if (state.l < COSTS.length) {
-            let pr = COSTS[state.l];
-            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < pr ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(pr)} ₽</button>`;
+            let cost = COSTS[state.l];
+            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < cost ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(cost)} ₽</button>`;
         } else {
-            uA.innerHTML = "<div style='color:gold; padding:10px; font-weight:bold;'>MAX IMMORTAL LEVEL 👑</div>";
+            uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX LEVEL 👑</div>";
         }
 
         const rA = document.getElementById('r-area');
-        let nR = REBIRTHS.findIndex(r => r.m > state.m);
-        if (nR !== -1) {
-            let rb = REBIRTHS[nR];
-            rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${nR})" ${state.b < rb.c ? 'disabled' : ''}>REBIRTH ${rb.n} (${f(rb.c)} ₽)</button>`;
+        let next = REBIRTHS.findIndex(r => r.m > state.m);
+        if (next !== -1) {
+            let rb = REBIRTHS[next];
+            rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < rb.c ? 'disabled' : ''}>REBIRTH ${rb.n} (${f(rb.c)} ₽)</button>`;
         } else { rA.innerHTML = ""; }
     }
 
-    // Снег (визуал)
+    // Снег
     const canvas = document.getElementById('snow-box');
     const ctx = canvas.getContext('2d');
     let flakes = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
-    for(let i=0; i<60; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2+1, s: Math.random()*1+0.2});
+    for(let i=0; i<50; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2+1, s: Math.random()*1+0.2});
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = "white"; ctx.beginPath();
