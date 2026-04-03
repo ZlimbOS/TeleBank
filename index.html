@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 2 Ultimate Admin</title>
+    <title>TeleBank | Season 2 Ultra Admin Pro</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; --accent: #ff3e3e; --gold: #ffd700; }
         body { 
@@ -50,28 +50,40 @@
         button:active { transform: translateY(2px); box-shadow: none; }
         button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
         
-        /* ГИБКАЯ АДМИН ПАНЕЛЬ */
+        /* КРАСИВАЯ АДМИН ПАНЕЛЬ */
         #admin-panel {
             display: none; position: fixed; top: 50%; left: 5%; transform: translateY(-50%);
-            background: rgba(17, 24, 39, 0.95); backdrop-filter: blur(25px);
-            border: 1px solid var(--gold); padding: 20px;
-            border-radius: 24px; z-index: 500; width: 280px; text-align: center;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            animation: slideIn 0.3s ease-out;
+            background: rgba(10, 15, 30, 0.98); backdrop-filter: blur(30px);
+            border: 2px solid var(--gold); padding: 25px;
+            border-radius: 28px; z-index: 500; width: 280px; text-align: center;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.25);
+            animation: panelFade 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
-        @keyframes slideIn { from { left: -320px; } to { left: 5%; } }
+        @keyframes panelFade { from { left: -350px; opacity: 0; } to { left: 5%; opacity: 1; } }
 
-        .admin-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,215,0,0.2); }
+        .adm-header { font-size: 0.8rem; color: var(--gold); letter-spacing: 3px; font-weight: 900; margin-bottom: 15px; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 10px; }
+        .adm-label { font-size: 0.65rem; color: #9ca3af; text-align: left; display: block; margin: 10px 0 2px 5px; text-transform: uppercase; }
+        
         .admin-input { 
-            width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; 
-            border: 1px solid #374151; background: #030712; color: var(--gold); 
+            width: 100%; padding: 12px; border-radius: 10px; 
+            border: 1px solid #374151; background: #030712; color: #fff; 
             outline: none; box-sizing: border-box; text-align: center; font-weight: bold;
+            transition: 0.3s;
         }
+        .admin-input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+        
+        .adm-set-btn { 
+            width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--gold); 
+            background: none; color: var(--gold); font-size: 0.7rem; font-weight: 900;
+            cursor: pointer; transition: 0.2s; margin-top: 5px;
+        }
+        .adm-set-btn:hover { background: var(--gold); color: #000; }
+
         .admin-toggle { 
-            position: absolute; bottom: 20px; left: 20px; opacity: 0.4; 
-            cursor: pointer; font-size: 1.5rem; z-index: 100; transition: 0.3s;
+            position: absolute; bottom: 20px; left: 20px; opacity: 0.1; 
+            cursor: pointer; font-size: 1.4rem; z-index: 100; transition: 0.5s;
         }
-        .admin-toggle:hover { opacity: 1; transform: rotate(90deg); }
+        .admin-toggle:hover { opacity: 0.8; transform: rotate(180deg); }
 
         .plus { 
             position: absolute; color: var(--p); font-weight: bold; 
@@ -92,44 +104,49 @@
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     <div class="coin-btn" id="coin">🪙</div>
     <div id="shop">
-        <p style="font-size: 0.85rem;">ДОХОД: <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
+        <p style="font-size: 0.85rem;"><span id="inc-lbl">ДОХОД:</span> <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
         <div id="u-area"></div>
         <div id="r-area"></div>
     </div>
 </div>
 
+<!-- Скрытая шестеренка -->
 <div class="admin-toggle" onclick="openAdmin()">⚙️</div>
 
-<!-- АДМИН ПАНЕЛЬ С УЛУЧШЕНИЕМ УРОВНЯ И РЕБИРТХА -->
+<!-- Новая админ-панель -->
 <div id="admin-panel">
-    <div style="font-size: 0.6rem; color: var(--gold); letter-spacing: 2px; margin-bottom: 10px;">SUPER ADMIN CONSOLE</div>
+    <div class="adm-header">ADMIN DASHBOARD</div>
     
-    <div class="admin-section">
-        <input type="text" id="adm-money" class="admin-input" placeholder="ДОБАВИТЬ ₽">
-        <button class="game-btn u-btn" style="padding:10px; font-size:0.7rem;" onclick="admAddMoney()">НАЧИСЛИТЬ</button>
+    <div style="text-align: left;">
+        <span class="adm-label">Установить баланс</span>
+        <input type="text" id="adm-money" class="admin-input" placeholder="Напр. 1000000">
+        <button class="adm-set-btn" onclick="admSetMoney()">ПРИМЕНИТЬ БАЛАНС</button>
+
+        <span class="adm-label">Установить уровень (1-13)</span>
+        <input type="number" id="adm-lvl" class="admin-input" placeholder="Уровень">
+        <button class="adm-set-btn" onclick="admSetLvl()">УСТАНОВИТЬ УРОВЕНЬ</button>
+
+        <span class="adm-label">Установить множитель (x)</span>
+        <input type="text" id="adm-mult" class="admin-input" placeholder="Множитель">
+        <button class="adm-set-btn" onclick="admSetMult()">УСТАНОВИТЬ X</button>
     </div>
 
-    <div class="admin-section">
-        <input type="number" id="adm-lvl" class="admin-input" placeholder="УРОВЕНЬ (1-12)">
-        <button class="game-btn u-btn" style="background: #3b82f6; color: white; padding:10px; font-size:0.7rem;" onclick="admSetLvl()">УСТАНОВИТЬ LVL</button>
-    </div>
-
-    <div class="admin-section">
-        <input type="text" id="adm-mult" class="admin-input" placeholder="МНОЖИТЕЛЬ (напр. 5000)">
-        <button class="game-btn r-btn" style="padding:10px; font-size:0.7rem;" onclick="admSetMult()">УСТАНОВИТЬ X</button>
-    </div>
-
-    <button class="game-btn" style="background: #ef4444; color: white; margin-top: 5px; font-size:0.7rem;" onclick="closeAdmin()">ЗАКРЫТЬ</button>
+    <button class="game-btn" style="background: #ef4444; color: white; margin-top: 25px; height: 40px; padding: 0;" onclick="closeAdmin()">ЗАКРЫТЬ</button>
 </div>
 
 <script>
     const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
     const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n];
-    const REBIRTHS = [{ c: 1000000n, m: 10n, n: "x10" }, { c: 1000000000n, m: 100n, n: "x100" }, { c: 2000000000000n, m: 400n, n: "x400" }, { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" }];
+    const REBIRTHS = [
+        { c: 1000000n, m: 10n, n: "x10" },
+        { c: 1000000000n, m: 100n, n: "x100" },
+        { c: 2000000000000n, m: 400n, n: "x400" },
+        { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" } 
+    ];
 
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
-    const SAVE_KEY = 'telebank_s2_ultra_admin';
+    const SAVE_KEY = 'telebank_s2_pro_final_v1';
 
     function load() {
         const saved = localStorage.getItem(SAVE_KEY);
@@ -158,38 +175,46 @@
 
     function getP() { return POWERS[state.l] * state.m; }
 
-    // --- АДМИН-ФУНКЦИИ ---
+    // --- АДМИН-ЛОГИКА ---
     function openAdmin() {
-        if (prompt("СЕКРЕТНЫЙ КЛЮЧ:") === "67SIXSEVENADMINPANEL") {
+        if (prompt("ADMIN ACCESS KEY:") === "67SIXSEVENADMINPANEL") {
             document.getElementById('admin-panel').style.display = 'block';
         }
     }
     function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
     
-    function admAddMoney() {
+    function admSetMoney() {
         let v = document.getElementById('adm-money').value;
-        if(v) { state.b += BigInt(v); refresh(); save(); }
+        if(v !== "") {
+            try {
+                state.b = BigInt(v);
+                refresh(); save();
+                alert("Баланс установлен на: " + f(state.b));
+            } catch(e) { alert("Ошибка: введите число"); }
+        }
     }
     
     function admSetLvl() {
         let v = parseInt(document.getElementById('adm-lvl').value);
-        if(v >= 1 && v <= 13) {
+        if(v >= 1 && v <= POWERS.length) {
             state.l = v - 1;
             refresh(); save();
-            alert("Установлен уровень: " + v);
+            alert("Уровень установлен на: " + v);
         }
     }
     
     function admSetMult() {
         let v = document.getElementById('adm-mult').value;
-        if(v) {
-            state.m = BigInt(v);
-            refresh(); save();
-            alert("Установлен множитель: x" + v);
+        if(v !== "") {
+            try {
+                state.m = BigInt(v);
+                refresh(); save();
+                alert("Множитель установлен на: x" + v);
+            } catch(e) { alert("Ошибка: введите число"); }
         }
     }
 
-    // --- ИГРОВОЙ ЦИКЛ ---
+    // --- ИГРОВАЯ ЛОГИКА ---
     setInterval(() => { if (state.l >= 9) { state.b += getP(); refresh(); save(); } }, 1000);
 
     document.getElementById('coin').onclick = (e) => {
