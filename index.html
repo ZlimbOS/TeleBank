@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 1 Turbo</title>
+    <title>TeleBank | Season 2 Update</title>
     <style>
-        :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
+        :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; --accent: #ff3e3e; }
         body { 
             font-family: 'Segoe UI', sans-serif; background: var(--bg); 
             color: white; display: flex; flex-direction: column; justify-content: center; 
@@ -14,34 +14,57 @@
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
-        /* ЗАГОЛОВОК СЕЗОНА */
+        /* ПЛАШКА ОБНОВЛЕНИЯ */
+        .update-badge {
+            position: absolute; top: 20px; right: 20px;
+            background: var(--accent); color: white; padding: 8px 15px;
+            border-radius: 50px; font-size: 0.7rem; font-weight: 900;
+            box-shadow: 0 0 15px var(--accent); z-index: 100;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+
         .season-header {
-            font-size: 2.2rem; font-weight: 900; color: #ffffff;
-            text-transform: uppercase; letter-spacing: 6px; margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.4); z-index: 10;
+            font-size: 2.5rem; font-weight: 900; color: #ffffff;
+            text-transform: uppercase; letter-spacing: 8px; margin-bottom: 10px;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.5); z-index: 10;
         }
 
         .card { 
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
-            padding: 30px; border-radius: 30px; text-align: center; 
-            box-shadow: 0 0 100px rgba(0,255,136,0.1); width: 360px; 
+            padding: 25px; border-radius: 30px; text-align: center; 
+            box-shadow: 0 0 100px rgba(0,255,136,0.1); width: 340px; 
             border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
-        .money-val { font-size: 1.8rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        .money-val { font-size: 1.8rem; font-weight: 900; color: var(--p); margin: 5px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
         
         .coin-btn { 
-            width: 130px; height: 130px; 
+            width: 120px; height: 120px; 
             background: radial-gradient(circle, #ffd700, #ff8c00); 
-            border-radius: 50%; margin: 20px auto; cursor: pointer; 
+            border-radius: 50%; margin: 15px auto; cursor: pointer; 
             display: flex; justify-content: center; align-items: center; 
-            font-size: 65px; box-shadow: 0 0 50px rgba(255, 165, 0, 0.3); 
+            font-size: 60px; box-shadow: 0 0 50px rgba(255, 165, 0, 0.3); 
             transition: 0.05s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
-        .coin-btn.wait { opacity: 0.8; transform: scale(0.98) brightness(1.2); }
+        .coin-btn.wait { opacity: 0.8; transform: scale(0.98); }
         
+        .lead-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer;
+            margin-bottom: 15px; font-weight: bold; z-index: 10; font-size: 0.8rem;
+        }
+
+        #lead-box {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #0f172a; border: 2px solid var(--p); padding: 20px;
+            border-radius: 20px; width: 280px; z-index: 200; box-shadow: 0 0 50px #000;
+        }
+        .lead-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.8rem; }
+        .you { color: var(--p); font-weight: bold; }
+
         button.game-btn { 
-            width: 100%; padding: 15px; border-radius: 12px; border: none; 
+            width: 100%; padding: 14px; border-radius: 12px; border: none; 
             margin-top: 8px; font-weight: bold; cursor: pointer; 
             text-transform: uppercase; transition: 0.2s;
         }
@@ -60,10 +83,12 @@
 <body>
 
 <canvas id="snow-box"></canvas>
-<div class="season-header">СЕЗОН 1</div>
+<div class="update-badge">NEW UPDATE 2.0</div>
+<div class="season-header">СЕЗОН 2</div>
+<button class="lead-btn" onclick="toggleLead()">🏆 ЛИДЕРЫ СЕЗОНА</button>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK TURBO</div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK ULTIMATE</div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     
@@ -76,29 +101,42 @@
     </div>
 </div>
 
+<div id="lead-box">
+    <h3 style="margin-top:0; text-align: center;">TOP PLAYERS</h3>
+    <div id="lead-list"></div>
+    <button class="game-btn u-btn" style="margin-top:15px" onclick="toggleLead()">ЗАКРЫТЬ</button>
+</div>
+
 <script>
-    // 1. КОНФИГУРАЦИЯ (BigInt для защиты от ошибок в триллионах)
-    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
-    const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 500000000000000n, 500000000000000000n];
+    // 1. БАЛАНС (BigInt)
+    const POWERS = [
+        100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 
+        500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n
+    ];
+    // LVL 12 за 15 КВАДРИЛЛИОНОВ
+    const COSTS = [
+        1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 
+        100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n
+    ];
+    // OMEGA за 2 КВАДРИЛЛИОНА
     const REBIRTHS = [
         { c: 1000000n, m: 10n, n: "x10" },
         { c: 1000000000n, m: 100n, n: "x100" },
         { c: 2000000000000n, m: 400n, n: "x400" },
-        { c: 15000000000000000n, m: 5000n, n: "OMEGA x5000" }
+        { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" } 
     ];
 
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
-    const SAVE_KEY = 'telebank_turbo_final_s1';
+    const SAVE_KEY = 'tb_turbo_s2_stable';
 
-    // 2. СИСТЕМА СОХРАНЕНИЯ
     function load() {
         const saved = localStorage.getItem(SAVE_KEY);
         if (saved) {
             try {
                 const d = JSON.parse(saved);
                 state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
-            } catch(e) { console.error("Ошибка загрузки"); }
+            } catch(e) {}
         }
     }
     function save() {
@@ -108,10 +146,9 @@
     }
     load();
 
-    // 3. ФОРМАТИРОВАНИЕ
     function f(n) {
         let num = BigInt(n);
-        if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(3) + " КВАДР";
+        if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
         if (num >= 1e12) return (Number(num / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
         if (num >= 1e9) return (Number(num / 1000000n) / 1000).toFixed(2) + " МЛРД";
         if (num >= 1e6) return (Number(num / 1000n) / 1000).toFixed(1) + " МЛН";
@@ -120,11 +157,8 @@
 
     function getP() { return POWERS[state.l] * state.m; }
 
-    // 4. ДОХОД И КЛИК (0.1 сек)
     setInterval(() => {
-        if (state.l >= 9) {
-            state.b += getP(); refresh(); save();
-        }
+        if (state.l >= 9) { state.b += getP(); refresh(); save(); }
     }, 1000);
 
     document.getElementById('coin').onclick = (e) => {
@@ -133,21 +167,17 @@
         state.b += getP();
         const c = document.getElementById('coin');
         c.classList.add('wait');
-        
-        // Кулдаун 0.1 секунды
-        setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100);
+        setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100); // 0.1 сек
 
         const anim = document.createElement('div');
         anim.className = 'plus';
         anim.innerText = "+" + f(getP());
-        anim.style.left = e.clientX + "px";
-        anim.style.top = e.clientY + "px";
+        anim.style.left = e.clientX + "px"; anim.style.top = e.clientY + "px";
         document.body.appendChild(anim);
         setTimeout(() => anim.remove(), 400);
         refresh(); save();
     };
 
-    // 5. МАГАЗИН
     window.buyL = () => {
         if (state.b >= COSTS[state.l]) {
             state.b -= COSTS[state.l]; state.l++; save(); refresh();
@@ -159,28 +189,45 @@
         }
     };
 
+    function toggleLead() {
+        const box = document.getElementById('lead-box');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+        updateLead();
+    }
+
+    function updateLead() {
+        const fakeLead = [
+            { n: "ElonMusk_2", b: 15000000000000000n },
+            { n: "WinterKing", b: 8000000000000000n },
+            { n: "Ты (Pro)", b: state.b, me: true },
+            { n: "Noob_99", b: 1000000000n }
+        ].sort((a,b) => (b.b > a.b ? 1 : -1));
+
+        let html = "";
+        fakeLead.forEach((p, i) => {
+            html += `<div class="lead-item ${p.me?'you':''}"><span>${i+1}. ${p.n}</span> <span>${f(p.b)}</span></div>`;
+        });
+        document.getElementById('lead-list').innerHTML = html;
+    }
+
     function refresh() {
         document.getElementById('bal').innerText = f(state.b) + " ₽";
         document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         let isA = state.l >= 9;
-        document.getElementById('inc-lbl').innerText = isA ? "АВТО-ДОХОД:" : "ДОХОД:";
         document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
         
         const uA = document.getElementById('u-area');
         if (state.l < COSTS.length) {
-            let cost = COSTS[state.l];
-            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < cost ? 'disabled' : ''}>УЛУЧШИТЬ: ${f(cost)} ₽</button>`;
-        } else { uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX LEVEL 👑</div>"; }
+            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(COSTS[state.l])} ₽</button>`;
+        } else { uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX SEASON 2 LEVEL 👑</div>"; }
         
         const rA = document.getElementById('r-area');
         let next = REBIRTHS.findIndex(r => r.m > state.m);
         if (next !== -1) {
-            let rb = REBIRTHS[next];
-            rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < rb.c ? 'disabled' : ''}>REBIRTH ${rb.n} (${f(rb.c)} ₽)</button>`;
+            rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < REBIRTHS[next].c ? 'disabled' : ''}>REBIRTH ${REBIRTHS[next].n} (${f(REBIRTHS[next].c)} ₽)</button>`;
         } else { rA.innerHTML = ""; }
     }
 
-    // 6. СНЕГ (Визуал)
     const canvas = document.getElementById('snow-box');
     const ctx = canvas.getContext('2d');
     let flakes = [];
