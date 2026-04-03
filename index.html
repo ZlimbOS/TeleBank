@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Auth Fix 2.0</title>
-    <!-- Подключаем Gun и SEA для работы аккаунтов -->
+    <title>TeleBank | Season 2 Fix</title>
     <script src="https://jsdelivr.net"></script>
     <script src="https://jsdelivr.net"></script>
     <style>
@@ -17,6 +16,7 @@
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
+        /* ИСПРАВЛЕННЫЙ ИНТЕРФЕЙС ВХОДА */
         #auth-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); display: flex; justify-content: center;
@@ -25,12 +25,23 @@
         .auth-card {
             background: #111827; padding: 30px; border-radius: 25px;
             border: 2px solid var(--p); width: 300px; text-align: center;
-            box-shadow: 0 0 50px rgba(0,255,136,0.2);
+            box-shadow: 0 0 50px rgba(0,255,136,0.2); pointer-events: all;
         }
         .auth-input {
             width: 90%; padding: 12px; margin: 8px 0; border-radius: 10px;
             border: 1px solid #374151; background: #1f2937; color: white; outline: none;
         }
+        
+        button.game-btn { 
+            width: 100%; padding: 14px; border-radius: 12px; border: none; 
+            margin-top: 10px; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; transition: 0.1s;
+        }
+        /* Эффект нажатия (теперь ты точно увидишь, что кнопка нажата) */
+        button.game-btn:active { transform: scale(0.96); opacity: 0.8; }
+        .u-btn { background: var(--p); color: #000; }
+        .r-btn { background: var(--rb); color: white; }
+
         .season-header { font-size: 2.2rem; font-weight: 900; letter-spacing: 6px; margin-bottom: 15px; z-index: 10; }
         .card { 
             background: rgba(15, 23, 42, 0.95); padding: 25px; border-radius: 30px; 
@@ -43,37 +54,27 @@
             justify-content: center; align-items: center; font-size: 60px; 
             transition: 0.1s; border: 5px solid rgba(255,255,255,0.2); position: relative; z-index: 20;
         }
-        .coin-btn.wait { opacity: 0.5; transform: scale(0.95); }
-        button.game-btn { 
-            width: 100%; padding: 14px; border-radius: 12px; border: none; 
-            margin-top: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
-        }
-        .u-btn { background: var(--p); color: #000; }
-        .r-btn { background: var(--rb); color: white; }
-        button:disabled { opacity: 0.2; cursor: not-allowed; }
-        #logout-btn { position: absolute; bottom: 20px; right: 20px; background: none; border: 1px solid #ff4444; color: #ff4444; padding: 5px 10px; border-radius: 5px; cursor: pointer; z-index: 100; }
     </style>
 </head>
 <body>
 
 <canvas id="snow-box"></canvas>
 
-<!-- ОКНО АВТОРИЗАЦИИ -->
 <div id="auth-overlay">
     <div class="auth-card">
-        <h2 style="margin:0 0 15px 0; color:var(--p)">ВХОД / РЕГИСТРАЦИЯ</h2>
-        <input type="text" id="username" class="auth-input" placeholder="Логин (3+)">
-        <input type="password" id="password" class="auth-input" placeholder="Пароль (6+)">
-        <button class="game-btn u-btn" id="login-trigger">ВОЙТИ</button>
-        <button class="game-btn r-btn" id="signup-trigger">СОЗДАТЬ АККАУНТ</button>
-        <p id="status-msg" style="font-size: 0.8rem; margin-top:15px; color: #9ca3af">Ожидание...</p>
+        <h2 style="margin:0 0 15px 0; color:var(--p)">СЕЗОН 2: ВХОД</h2>
+        <input type="text" id="username" class="auth-input" placeholder="Логин">
+        <input type="password" id="password" class="auth-input" placeholder="Пароль">
+        <button class="game-btn u-btn" id="loginBtn">ВОЙТИ</button>
+        <button class="game-btn r-btn" id="regBtn">РЕГИСТРАЦИЯ</button>
+        <p id="msg" style="font-size: 0.8rem; margin-top:15px; color: #9ca3af">Введите данные</p>
     </div>
 </div>
 
 <div class="season-header">СЕЗОН 2</div>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6;">АККАУНТ: <span id="user-display">?</span></div>
+    <div style="font-size: 0.7rem; opacity: 0.6;">ИГРОК: <span id="user-display">...</span></div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     <div class="coin-btn" id="coin">🪙</div>
@@ -84,51 +85,41 @@
     </div>
 </div>
 
-<button id="logout-btn" onclick="logout()">ВЫЙТИ</button>
-
 <script>
-    // 1. СЕТЕВАЯ ЧАСТЬ
+    // 1. СЕТЬ
     const gun = Gun(['https://herokuapp.com']);
     const user = gun.user().recall({localStorage: true});
 
     const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
     const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n];
-    const REBIRTHS = [{ c: 1000000n, m: 10n, n: "x10" }, { c: 2000000000000n, m: 400n, n: "x400" }, { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" }];
+    const REBIRTHS = [{ c: 1000000n, m: 10n, n: "x10" }, { c: 2000000000000n, m: 400n, n: "x400" }, { c: 2000000000000000n, m: 5000n, n: "OMEGA" }];
 
     let state = { b: 0n, l: 0, m: 1n, name: "" };
     let wait = false;
 
-    // РЕГИСТРАЦИЯ
-    document.getElementById('signup-trigger').addEventListener('click', () => {
-        const u = document.getElementById('username').value, p = document.getElementById('password').value;
-        if(u.length < 3 || p.length < 6) return alert("Логин от 3, Пароль от 6 символов!");
+    // 2. ОБРАБОТЧИКИ КНОПОК (ПРЯМЫЕ)
+    document.getElementById('regBtn').onclick = function() {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        if(!u || !p) return alert("Заполни поля!");
         
-        document.getElementById('status-msg').innerText = "Создаем аккаунт...";
+        document.getElementById('msg').innerText = "Регистрируем...";
         user.create(u, p, (ack) => {
-            if(ack.err) {
-                alert("Ошибка: " + ack.err);
-                document.getElementById('status-msg').innerText = "Ошибка регистрации.";
-            } else {
-                alert("Успешно! Теперь нажмите кнопку ВОЙТИ.");
-                document.getElementById('status-msg').innerText = "Аккаунт создан. Войдите.";
-            }
+            if(ack.err) alert(ack.err);
+            else { alert("Готово! Нажми ВОЙТИ"); document.getElementById('msg').innerText = "Аккаунт создан."; }
         });
-    });
+    };
 
-    // ВХОД
-    document.getElementById('login-trigger').addEventListener('click', () => {
-        const u = document.getElementById('username').value, p = document.getElementById('password').value;
-        document.getElementById('status-msg').innerText = "Входим...";
+    document.getElementById('loginBtn').onclick = function() {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        
+        document.getElementById('msg').innerText = "Входим...";
         user.auth(u, p, (ack) => {
-            if(ack.err) {
-                alert("Ошибка: " + ack.err);
-                document.getElementById('status-msg').innerText = "Неверные данные.";
-            } else {
-                document.getElementById('status-msg').innerText = "Успех! Загрузка...";
-                location.reload();
-            }
+            if(ack.err) alert("Ошибка: " + ack.err);
+            else { document.getElementById('auth-overlay').style.display = 'none'; location.reload(); }
         });
-    });
+    };
 
     // ПРОВЕРКА ВХОДА
     if(user.is) {
@@ -136,36 +127,21 @@
         user.get('alias').once(n => {
             state.name = n;
             document.getElementById('user-display').innerText = n;
-            user.get('game_data_s2').once(d => {
-                if(d) {
-                    state.b = BigInt(d.b || "0");
-                    state.l = d.l || 0;
-                    state.m = BigInt(d.m || "1");
-                }
+            user.get('s2_data').once(d => {
+                if(d) { state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m); }
                 refresh();
             });
         });
     }
 
-    function save() {
-        if(user.is) {
-            user.get('game_data_s2').put({
-                b: state.b.toString(),
-                l: state.l,
-                m: state.m.toString()
-            });
-        }
-    }
+    function save() { if(user.is) user.get('s2_data').put({ b: state.b.toString(), l: state.l, m: state.m.toString() }); }
 
-    function logout() { user.leave(); location.reload(); }
-
-    // 2. ИГРОВАЯ ЛОГИКА
+    // 3. ИГРА
     function f(n) {
         let num = BigInt(n);
-        if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
-        if (num >= 1e12) return (Number(num / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
-        if (num >= 1e9) return (Number(num / 1000000n) / 1000).toFixed(2) + " МЛРД";
-        if (num >= 1e6) return (Number(num / 1000n) / 1000).toFixed(1) + " МЛН";
+        if (num >= 1e15) return (Number(num / 1e12n) / 1000).toFixed(2) + " КВАДР";
+        if (num >= 1e12) return (Number(num / 1e9n) / 1000).toFixed(2) + " ТРЛН";
+        if (num >= 1e9) return (Number(num / 1e6n) / 1000).toFixed(1) + " МЛРД";
         return num.toLocaleString();
     }
 
@@ -188,13 +164,11 @@
         let isA = state.l >= 9;
         document.getElementById('inc-val').innerText = f(POWERS[state.l] * state.m) + (isA ? " /СЕК" : " /ТАП");
         const uA = document.getElementById('u-area');
-        if (state.l < COSTS.length) {
-            uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(COSTS[state.l])} ₽</button>`;
-        } else uA.innerHTML = "MAX LVL 👑";
+        if (state.l < COSTS.length) uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(COSTS[state.l])} ₽</button>`;
+        else uA.innerHTML = "MAX LVL 👑";
         const rA = document.getElementById('r-area');
         let next = REBIRTHS.findIndex(r => r.m > state.m);
         if (next !== -1) rA.innerHTML = `<button class="game-btn r-btn" onclick="buyR(${next})" ${state.b < REBIRTHS[next].c ? 'disabled' : ''}>REBIRTH ${REBIRTHS[next].n} (${f(REBIRTHS[next].c)} ₽)</button>`;
-        else rA.innerHTML = "";
     }
 
     // Снег
