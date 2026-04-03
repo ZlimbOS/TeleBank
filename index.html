@@ -3,218 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeoBank | Evolution</title>
-    <link href="https://googleapis.com" rel="stylesheet">
+    <title>NeoBank Clicker | Evolution</title>
     <style>
         :root {
-            --primary: #00f2fe;
-            --secondary: #4facfe;
-            --accent: #7000ff;
-            --bg: #0b0e14;
-            --glass: rgba(255, 255, 255, 0.05);
+            --primary: #00ff88;
+            --bg: #0f172a;
+            --card: rgba(30, 41, 59, 0.7);
+            --rebirth: #f093fb;
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: radial-gradient(circle at top right, #16213e, #0b0e14);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top, #1e293b, #0f172a);
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         .container {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 35px;
-            border-radius: 30px;
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 24px;
             text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
-            width: 350px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 340px;
             position: relative;
         }
 
-        h1 { font-weight: 900; letter-spacing: -1px; margin-bottom: 5px; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tag { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--primary); }
 
         input {
-            width: 100%;
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.2);
+            width: 80%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.1);
             color: white;
             margin-bottom: 15px;
-            box-sizing: border-box;
             outline: none;
             text-align: center;
         }
 
-        /* Красивые градиентные кнопки */
-        .btn {
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            color: white;
+        button {
+            background: linear-gradient(135deg, #00ff88, #00bd65);
+            color: #052e16;
             border: none;
-            padding: 16px;
-            border-radius: 15px;
+            padding: 12px;
+            border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
             width: 100%;
             margin-top: 10px;
-            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
         }
 
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(112, 0, 255, 0.4); }
-        .btn:active { transform: translateY(0); }
-        .btn:disabled { background: #333; box-shadow: none; opacity: 0.3; cursor: not-allowed; }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4); }
+        button:disabled { filter: grayscale(1); opacity: 0.3; cursor: not-allowed; }
 
-        .rebirth-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); box-shadow: 0 10px 20px rgba(245, 87, 108, 0.3); }
-
-        .stats-card {
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid rgba(255,255,255,0.05);
+        /* Кнопка ребиртха */
+        .rebirth-btn {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            margin-top: 20px;
         }
 
-        .balance-label { font-size: 0.7rem; opacity: 0.6; margin-bottom: 5px; }
-        .balance-val { font-size: 2rem; font-weight: 900; color: var(--primary); }
+        .coin-container {
+            position: relative;
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+        }
 
-        /* Зона клика */
-        .coin-wrapper { position: relative; margin: 30px 0; }
-        .main-coin {
-            width: 140px; height: 140px;
-            background: linear-gradient(45deg, var(--primary), var(--accent));
+        .coin {
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
             border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 60px;
-            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 70px;
             cursor: pointer;
             user-select: none;
-            box-shadow: 0 0 40px rgba(0, 242, 254, 0.3);
-            transition: 0.1s;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            transition: transform 0.05s;
         }
-        .main-coin:active { transform: scale(0.92) rotate(5deg); }
 
-        .rebirth-badge { font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; margin-top: 10px; display: inline-block; }
+        .coin:active { transform: scale(0.92); }
+
+        .plus-one {
+            position: absolute;
+            color: var(--primary);
+            font-weight: bold;
+            animation: floatUp 0.8s ease-out forwards;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        .stats-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+        }
+
+        .balance-label { font-size: 0.7rem; opacity: 0.7; letter-spacing: 1px; }
+        .balance-value { font-size: 1.8rem; font-weight: bold; display: block; color: var(--primary); }
+        .multiplier-tag { font-size: 0.8rem; color: #f093fb; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <!-- ВХОД -->
-    <div id="scr-auth" class="container">
-        <h1>NEOBANK</h1>
-        <p class="tag">Next-Gen Assets</p>
-        <input type="text" id="username" placeholder="ВВЕДИТЕ ВАШЕ ИМЯ">
-        <button class="btn" onclick="init()">СОЗДАТЬ АККАУНТ</button>
+    <div id="reg-screen" class="container">
+        <h2>NeoBank</h2>
+        <input type="text" id="username" placeholder="Ваше имя" maxlength="12">
+        <button onclick="register()">ОТКРЫТЬ СЧЁТ</button>
     </div>
 
-    <!-- ИГРА -->
-    <div id="scr-game" class="container" style="display:none;">
-        <h1 id="user-name">CLIENT</h1>
-        <div class="rebirth-badge">РЕБИРТ: x<span id="mult-val">1</span></div>
-
-        <div class="stats-card">
-            <div class="balance-label">ТЕКУЩИЙ БАЛАНС</div>
-            <div class="balance-val"><span id="balance">0</span> ₽</div>
-            <div style="font-size: 0.8rem; margin-top: 10px; opacity: 0.8;">Клик: +<span id="pwr">100</span> ₽</div>
+    <div id="game-screen" class="container" style="display:none;">
+        <div id="welcome" style="margin-bottom: 10px; font-size: 0.8rem; opacity: 0.6;">ЛИЧНЫЙ КАБИНЕТ</div>
+        
+        <div class="stats-box">
+            <span class="balance-label">БАЛАНС</span>
+            <span class="balance-value"><span id="balance">0</span> ₽</span>
+            <div class="multiplier-tag" id="mult-tag">МНОЖИТЕЛЬ: x1</div>
         </div>
 
-        <div class="coin-wrapper">
-            <div class="main-coin" onclick="tap()">💎</div>
+        <div class="coin-container">
+            <div class="coin" onclick="tap(event)">💰</div>
         </div>
 
-        <div id="shop">
-            <button id="l1" class="btn" onclick="buy(1, 500)">LVL 2: 500 ₽</button>
-            <button id="l2" class="btn" style="display:none" onclick="buy(2, 1500)">LVL 3: 1500 ₽</button>
-            <button id="l3" class="btn" style="display:none" onclick="buy(3, 5000)">LVL 4: 5000 ₽</button>
-            <button id="l4" class="btn" style="display:none" onclick="buy(4, 10000)">LVL 5: 10000 ₽</button>
-            <button id="l5" class="btn" style="display:none" onclick="buy(5, 50000)">LVL 6: 50000 ₽</button>
-            <div id="max" style="display:none; padding:15px; font-weight:bold; color:var(--primary);">MAX CONFIGURATION REACHED</div>
+        <div id="upgrades">
+            <p style="font-size: 0.8rem; margin-bottom: 10px;">За тап: <span id="per-tap">100</span> ₽</p>
+            
+            <!-- Уровни -->
+            <button id="u1" onclick="upgrade(1, 500)">Улучшить до LVL 2 (500 ₽)</button>
+            <button id="u2" onclick="upgrade(2, 1500)" style="display:none;">Улучшить до LVL 3 (1500 ₽)</button>
+            <button id="u3" onclick="upgrade(3, 5000)" style="display:none;">Улучшить до LVL 4 (5000 ₽)</button>
+            <button id="u4" onclick="upgrade(4, 10000)" style="display:none;">Улучшить до LVL 5 (10000 ₽)</button>
+            <button id="u5" onclick="upgrade(5, 50000)" style="display:none;">Улучшить до LVL 6 (50000 ₽)</button>
+            
+            <!-- Ребиртхи -->
+            <button id="rb1" class="rebirth-btn" onclick="doRebirth(15000, 2)" style="display:none;">РЕБИРТ x2 (15000 ₽)</button>
+            <button id="rb2" class="rebirth-btn" onclick="doRebirth(50000, 3)" style="display:none;">РЕБИРТ x3 (50000 ₽)</button>
+            
+            <div id="max-lvl" style="display:none; color: gold; font-weight: bold; margin-top: 10px;">ULTIMATE LEVEL 👑</div>
         </div>
-
-        <!-- Кнопки Ребиртов -->
-        <button id="rb1" class="btn rebirth-btn" style="display:none" onclick="rebirth(15000, 2)">REBIRTH x2 (15000 ₽)</button>
-        <button id="rb2" class="btn rebirth-btn" style="display:none" onclick="rebirth(50000, 3)">REBIRTH x3 (50000 ₽)</button>
-
-        <p class="tag" style="margin-top:40px">NeoBank Evolution © 2026</p>
     </div>
 
     <script>
-        let balance = 0, level = 0, multiplier = 1;
-        const powers =;
+        let balance = 0;
+        let currentLvl = 0;
+        let multiplier = 1;
 
-        function init() {
-            const n = document.getElementById('username').value;
-            if(n) {
-                document.getElementById('scr-auth').style.display='none';
-                document.getElementById('scr-game').style.display='block';
-                document.getElementById('user-name').innerText = n;
-                update();
+        // Твои значения уровней: 100, 200, 300, 400, 1000, 1500
+        const basePowers =;
+
+        function register() {
+            const name = document.getElementById('username').value;
+            if (name) {
+                document.getElementById('reg-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'block';
+                document.getElementById('welcome').innerText = "КЛИЕНТ: " + name.toUpperCase();
+                updateUI();
             }
         }
 
-        function tap() {
-            balance += powers[level] * multiplier;
-            update();
+        function tap(event) {
+            let gain = basePowers[currentLvl] * multiplier;
+            balance += gain;
+            
+            const plus = document.createElement('div');
+            plus.innerText = `+${gain}`;
+            plus.className = 'plus-one';
+            plus.style.left = `${event.clientX - 20}px`;
+            plus.style.top = `${event.clientY - 40}px`;
+            plus.style.position = 'fixed';
+            document.body.appendChild(plus);
+            setTimeout(() => plus.remove(), 800);
+            
+            updateUI();
         }
 
-        function buy(l, price) {
-            if(balance >= price) {
-                balance -= price;
-                level = l;
-                update();
+        function upgrade(lvl, cost) {
+            if (balance >= cost) {
+                balance -= cost;
+                currentLvl = lvl;
+                updateUI();
             }
         }
 
-        function rebirth(price, newMult) {
-            if(balance >= price) {
+        function doRebirth(cost, newMult) {
+            if (balance >= cost) {
                 balance = 0;
-                level = 0;
+                currentLvl = 0;
                 multiplier = newMult;
-                update();
+                updateUI();
             }
         }
 
-        function update() {
+        function updateUI() {
             document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
-            document.getElementById('pwr').innerText = (powers[level] * multiplier).toLocaleString();
-            document.getElementById('mult-val').innerText = multiplier;
+            document.getElementById('per-tap').innerText = (basePowers[currentLvl] * multiplier).toLocaleString();
+            document.getElementById('mult-tag').innerText = `МНОЖИТЕЛЬ: x${multiplier}`;
 
-            // Отображение кнопок уровней
+            // Управление кнопками уровней
             for(let i=1; i<=5; i++) {
-                let b = document.getElementById('l'+i);
-                if(b) b.style.display = (level === i-1) ? 'block' : 'none';
+                let btn = document.getElementById('u' + i);
+                btn.style.display = (currentLvl === i-1) ? 'block' : 'none';
             }
-            document.getElementById('max').style.display = (level === 5) ? 'block' : 'none';
+            document.getElementById('max-lvl').style.display = (currentLvl === 5) ? 'block' : 'none';
 
-            // Доступность кнопок
-            const prices =;
-            for(let i=1; i<=5; i++) {
-                let b = document.getElementById('l'+i);
-                if(b) b.disabled = balance < prices[i-1];
+            // Проверка цен для кнопок уровней
+            const upgCosts =;
+            if(currentLvl < 5) {
+                document.getElementById('u' + (currentLvl + 1)).disabled = balance < upgCosts[currentLvl];
             }
 
-            // Логика Ребиртов
+            // Управление Ребиртхами
             const rb1 = document.getElementById('rb1');
             const rb2 = document.getElementById('rb2');
-            
-            // Первый ребирт (показываем если мультипликатор 1)
-            if(multiplier === 1) {
-                rb1.style.display = (balance >= 10000) ? 'block' : 'none';
+
+            if (multiplier === 1) {
+                rb1.style.display = 'block';
                 rb1.disabled = balance < 15000;
                 rb2.style.display = 'none';
-            } 
-            // Второй ребирт (показываем если уже есть x2)
-            else if(multiplier === 2) {
+            } else if (multiplier === 2) {
                 rb1.style.display = 'none';
-                rb2.style.display = (balance >= 30000) ? 'block' : 'none';
+                rb2.style.display = 'block';
                 rb2.disabled = balance < 50000;
             } else {
                 rb1.style.display = 'none';
