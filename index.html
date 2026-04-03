@@ -2,80 +2,205 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Clicker Bank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoBank Clicker</title>
+    <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f2f5; padding-top: 50px; }
-        .card { background: white; width: 300px; margin: 0 auto; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        #money-img { width: 150px; cursor: pointer; transition: transform 0.1s; }
-        #money-img:active { transform: scale(0.9); }
-        button { margin-top: 10px; padding: 10px; cursor: pointer; border: none; border-radius: 5px; background: #28a745; color: white; }
-        button:disabled { background: #ccc; }
-        .stats { font-size: 1.2em; margin: 20px 0; }
+        :root {
+            --primary: #00ff88;
+            --bg: #0f172a;
+            --card: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle at top, #1e293b, #0f172a);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 320px;
+            position: relative;
+        }
+
+        h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--primary); }
+
+        /* Вход */
+        input {
+            width: 80%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            margin-bottom: 15px;
+            outline: none;
+        }
+
+        /* Кнопки */
+        button {
+            background: linear-gradient(135deg, #00ff88, #00bd65);
+            color: #052e16;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4); }
+        button:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+
+        /* Монетка */
+        .coin-container {
+            position: relative;
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .coin {
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            transition: transform 0.05s;
+        }
+
+        .coin:active { transform: scale(0.95); }
+
+        /* Эффект +100 при клике */
+        .plus-one {
+            position: absolute;
+            color: var(--primary);
+            font-weight: bold;
+            animation: floatUp 0.8s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+
+        .stats-box {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        .balance-label { font-size: 0.8rem; opacity: 0.7; }
+        .balance-value { font-size: 2rem; font-weight: bold; display: block; }
     </style>
 </head>
 <body>
 
-    <div id="reg-screen" class="card">
-        <h2>Регистрация в Банке</h2>
-        <input type="text" id="username" placeholder="Введите имя">
-        <button onclick="register()">Войти</button>
+    <!-- Экран регистрации -->
+    <div id="reg-screen" class="container">
+        <h2>NeoBank</h2>
+        <input type="text" id="username" placeholder="Ваше имя" maxlength="12">
+        <button onclick="register()">Открыть счёт</button>
     </div>
 
-    <div id="game-screen" class="card" style="display:none;">
-        <h2 id="welcome">Привет!</h2>
-        <div class="stats">Баланс: <span id="balance">0</span> руб.</div>
-        <div class="stats">За тап: +<span id="per-tap">100</span> руб.</div>
+    <!-- Экран игры -->
+    <div id="game-screen" class="container" style="display:none;">
+        <div id="welcome" style="margin-bottom: 10px; font-size: 0.9rem; opacity: 0.8;">Личный кабинет</div>
         
-        <img src="https://flaticon.com" id="money-img" onclick="tap()">
-        
-        <div style="margin-top: 20px;">
-            <button id="upg1" onclick="upgrade(1, 500, 200)">Улучшить за 500 руб (+200 за тап)</button>
-            <button id="upg2" onclick="upgrade(2, 1500, 300)" style="display:none;">Улучшить за 1500 руб (+300 за тап)</button>
-            <p id="max-lvl" style="display:none; color: gold; font-weight: bold;">МАКСИМАЛЬНЫЙ УРОВЕНЬ</p>
+        <div class="stats-box">
+            <span class="balance-label">БАЛАНС</span>
+            <span class="balance-value"><span id="balance">0</span> ₽</span>
+        </div>
+
+        <div class="coin-container" id="coin-box">
+            <div class="coin" onclick="tap(event)">💰</div>
+        </div>
+
+        <div id="upgrades">
+            <p style="font-size: 0.8rem;">За тап: <span id="per-tap">100</span> ₽</p>
+            <button id="upg1" onclick="upgrade(1, 500, 200)">Улучшить (500 ₽)</button>
+            <button id="upg2" onclick="upgrade(2, 1500, 300)" style="display:none;">Макс. уровень (1500 ₽)</button>
+            <div id="max-lvl" style="display:none; color: #ffd700; font-weight: bold; margin-top: 10px;">TOP LEVEL 👑</div>
         </div>
     </div>
 
     <script>
         let balance = 0;
         let perTap = 100;
-        let level = 0;
 
         function register() {
             const name = document.getElementById('username').value;
             if (name) {
                 document.getElementById('reg-screen').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'block';
-                document.getElementById('welcome').innerText = "Банк: " + name;
+                document.getElementById('welcome').innerText = "Клиент: " + name;
             }
         }
 
-        function tap() {
+        function tap(event) {
             balance += perTap;
             updateUI();
+
+            // Создаем вылетающий текст +100
+            const plus = document.createElement('div');
+            plus.innerText = `+${perTap}`;
+            plus.className = 'plus-one';
+            plus.style.left = `${event.clientX - 20}px`;
+            plus.style.top = `${event.clientY - 40}px`;
+            plus.style.position = 'fixed';
+            document.body.appendChild(plus);
+
+            setTimeout(() => plus.remove(), 800);
         }
 
         function upgrade(lvl, cost, nextPower) {
             if (balance >= cost) {
                 balance -= cost;
                 perTap = nextPower;
-                level = lvl;
                 
                 if (lvl === 1) {
                     document.getElementById('upg1').style.display = 'none';
-                    document.getElementById('upg2').style.display = 'inline-block';
-                } else if (lvl === 2) {
+                    document.getElementById('upg2').style.display = 'block';
+                } else {
                     document.getElementById('upg2').style.display = 'none';
                     document.getElementById('max-lvl').style.display = 'block';
                 }
                 updateUI();
-            } else {
-                alert("Недостаточно денег!");
             }
         }
 
         function updateUI() {
-            document.getElementById('balance').innerText = balance;
+            document.getElementById('balance').innerText = balance.toLocaleString();
             document.getElementById('per-tap').innerText = perTap;
+            
+            // Проверка доступности кнопок (чтобы они становились тусклыми, если денег мало)
+            const b1 = document.getElementById('upg1');
+            const b2 = document.getElementById('upg2');
+            if(b1) b1.disabled = balance < 500;
+            if(b2) b2.disabled = balance < 1500;
         }
     </script>
 </body>
