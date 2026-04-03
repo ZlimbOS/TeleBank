@@ -3,16 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Fast Immortal x5000</title>
+    <title>TeleBank | Season 1</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
             font-family: 'Segoe UI', sans-serif; background: var(--bg); 
-            color: white; display: flex; justify-content: center; 
+            color: white; display: flex; flex-direction: column; justify-content: center; 
             align-items: center; height: 100vh; margin: 0; 
             user-select: none; overflow: hidden; 
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        
+        /* Надпись СЕЗОН 1 */
+        .season-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px rgba(255,255,255,0.5);
+            z-index: 10;
+            text-transform: uppercase;
+        }
+
         .card { 
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
             padding: 30px; border-radius: 30px; text-align: center; 
@@ -27,11 +40,10 @@
             border-radius: 50%; margin: 20px auto; cursor: pointer; 
             display: flex; justify-content: center; align-items: center; 
             font-size: 65px; box-shadow: 0 0 50px rgba(255, 165, 0, 0.3); 
-            transition: 0.1s; border: 5px solid rgba(255,255,255,0.2);
+            transition: 0.05s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
-        /* Анимация быстрой перезарядки */
-        .coin-btn.wait { opacity: 0.5; transform: scale(0.95); filter: grayscale(0.5); cursor: not-allowed; }
+        .coin-btn.wait { opacity: 0.7; transform: scale(0.98); }
         
         button.game-btn { 
             width: 100%; padding: 15px; border-radius: 12px; border: none; 
@@ -44,18 +56,21 @@
         
         .plus { 
             position: absolute; color: var(--p); font-weight: bold; 
-            animation: moveUp 0.6s forwards; pointer-events: none; 
-            font-size: 1.2rem; z-index: 150; text-shadow: 0 0 5px #000;
+            animation: moveUp 0.4s forwards; pointer-events: none; 
+            font-size: 1.1rem; z-index: 150; text-shadow: 0 0 5px #000;
         }
-        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
+        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-70px); opacity: 0; } }
     </style>
 </head>
 <body>
 
 <canvas id="snow-box"></canvas>
 
+<!-- Красивый заголовок сверху -->
+<div class="season-title">Сезон 1</div>
+
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK FAST v.MAX</div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK TURBO</div>
     <div class="money-val" id="bal">0 ₽</div>
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     
@@ -69,7 +84,6 @@
 </div>
 
 <script>
-    // Настройки BigInt
     const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n];
     const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 500000000000000n];
     const REBIRTHS = [
@@ -82,14 +96,14 @@
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
 
-    const saved = localStorage.getItem('tb_fast_stable');
+    const saved = localStorage.getItem('tb_turbo_s1');
     if (saved) {
         const d = JSON.parse(saved);
         state.b = BigInt(d.b); state.l = d.l; state.m = BigInt(d.m);
     }
 
     function save() {
-        localStorage.setItem('tb_fast_stable', JSON.stringify({
+        localStorage.setItem('tb_turbo_s1', JSON.stringify({
             b: state.b.toString(), l: state.l, m: state.m.toString()
         }));
     }
@@ -107,35 +121,26 @@
 
     setInterval(() => {
         if (state.l >= 9) {
-            state.b += getP();
-            refresh();
-            save();
+            state.b += getP(); refresh(); save();
         }
     }, 1000);
 
     document.getElementById('coin').onclick = (e) => {
         if (wait) return;
         wait = true;
-        
-        let gain = getP();
-        state.b += gain;
-
+        state.b += getP();
         const c = document.getElementById('coin');
         c.classList.add('wait');
-
-        // Кулдаун 0.2 секунды
-        setTimeout(() => { wait = false; c.classList.remove('wait'); }, 200);
+        setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100);
 
         const anim = document.createElement('div');
         anim.className = 'plus';
-        anim.innerText = "+" + f(gain);
+        anim.innerText = "+" + f(getP());
         anim.style.left = e.clientX + "px";
         anim.style.top = e.clientY + "px";
         document.body.appendChild(anim);
-        setTimeout(() => anim.remove(), 600);
-        
-        refresh();
-        save();
+        setTimeout(() => anim.remove(), 400);
+        refresh(); save();
     };
 
     window.buyL = () => {
@@ -153,19 +158,14 @@
     function refresh() {
         document.getElementById('bal').innerText = f(state.b) + " ₽";
         document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
-        
         let isA = state.l >= 9;
         document.getElementById('inc-lbl').innerText = isA ? "АВТО-ДОХОД:" : "ДОХОД:";
         document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
-
         const uA = document.getElementById('u-area');
         if (state.l < COSTS.length) {
             let cost = COSTS[state.l];
             uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < cost ? 'disabled' : ''}>LVL ${state.l + 2}: ${f(cost)} ₽</button>`;
-        } else {
-            uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX LEVEL 👑</div>";
-        }
-
+        } else { uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX LEVEL 👑</div>"; }
         const rA = document.getElementById('r-area');
         let next = REBIRTHS.findIndex(r => r.m > state.m);
         if (next !== -1) {
@@ -179,7 +179,7 @@
     let flakes = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
-    for(let i=0; i<50; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2+1, s: Math.random()*1+0.2});
+    for(let i=0; i<40; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2, s: Math.random()*1+0.2});
     function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = "white"; ctx.beginPath();
