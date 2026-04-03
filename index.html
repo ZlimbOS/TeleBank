@@ -3,204 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeoBank Clicker</title>
-    <link href="https://googleapis.com" rel="stylesheet">
+    <title>TeleBank | Digital Assets</title>
     <style>
         :root {
-            --primary: #00ff88;
-            --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.7);
+            --bg: #000000;
+            --accent: #ffffff;
+            --gray: #666666;
+            --dark-gray: #1a1a1a;
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: radial-gradient(circle at top, #1e293b, #0f172a);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background-color: var(--bg);
+            color: var(--accent);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            overflow: hidden;
-        }
-
-        .container {
-            background: var(--card);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 30px;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            width: 320px;
-            position: relative;
-        }
-
-        h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--primary); }
-
-        /* Вход */
-        input {
-            width: 80%;
-            padding: 12px;
-            border-radius: 12px;
-            border: none;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            margin-bottom: 15px;
-            outline: none;
-        }
-
-        /* Кнопки */
-        button {
-            background: linear-gradient(135deg, #00ff88, #00bd65);
-            color: #052e16;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4); }
-        button:disabled { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
-
-        /* Монетка */
-        .coin-container {
-            position: relative;
-            margin: 30px 0;
-            display: flex;
-            justify-content: center;
-        }
-
-        .coin {
-            width: 160px;
-            height: 160px;
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 80px;
+            min-height: 100vh;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .app-container { width: 380px; padding: 50px; border: 1px solid var(--dark-gray); }
+
+        h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: 4px; }
+        .tagline { color: var(--gray); font-size: 10px; margin-bottom: 50px; }
+
+        /* Поле ввода */
+        input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--dark-gray);
+            padding: 18px;
+            color: white;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* Кнопка "Купить/Регистрация" как на скрине */
+        .action-btn {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            font-weight: 900;
+            font-size: 13px;
             cursor: pointer;
-            user-select: none;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-            transition: transform 0.05s;
+            transition: 0.2s;
+            width: 100%;
+            display: block;
         }
 
-        .coin:active { transform: scale(0.95); }
+        .action-btn:hover { background: #cccccc; }
+        .action-btn:disabled { background: #333; color: #555; cursor: not-allowed; }
 
-        /* Эффект +100 при клике */
-        .plus-one {
-            position: absolute;
-            color: var(--primary);
-            font-weight: bold;
-            animation: floatUp 0.8s ease-out forwards;
-            pointer-events: none;
+        /* Игровая панель */
+        .status-row { border-top: 1px solid var(--dark-gray); margin-top: 40px; padding-top: 25px; }
+        .label { color: var(--gray); font-size: 10px; margin-bottom: 5px; }
+        .data-value { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+
+        /* Зона тапа */
+        .tap-zone {
+            margin: 40px 0;
+            height: 150px;
+            border: 1px solid var(--dark-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            cursor: pointer;
+            transition: background 0.1s;
         }
+        .tap-zone:active { background: var(--dark-gray); }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100px); opacity: 0; }
-        }
-
-        .stats-box {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-        }
-
-        .balance-label { font-size: 0.8rem; opacity: 0.7; }
-        .balance-value { font-size: 2rem; font-weight: bold; display: block; }
+        .footer-info { margin-top: 60px; color: #333; font-size: 9px; line-height: 1.6; }
     </style>
 </head>
 <body>
 
-    <!-- Экран регистрации -->
-    <div id="reg-screen" class="container">
-        <h2>NeoBank</h2>
-        <input type="text" id="username" placeholder="Ваше имя" maxlength="12">
-        <button onclick="register()">Открыть счёт</button>
+    <!-- ЭКРАН ВХОДА -->
+    <div id="login-screen" class="app-container">
+        <h1>TELEBANK</h1>
+        <p class="tagline">ACCESSING SECURE TERMINAL...</p>
+        
+        <input type="text" id="user-input" placeholder="ENTER CLIENT NAME">
+        <button class="action-btn" onclick="initBank()">OPEN ACCOUNT</button>
     </div>
 
-    <!-- Экран игры -->
-    <div id="game-screen" class="container" style="display:none;">
-        <div id="welcome" style="margin-bottom: 10px; font-size: 0.9rem; opacity: 0.8;">Личный кабинет</div>
-        
-        <div class="stats-box">
-            <span class="balance-label">БАЛАНС</span>
-            <span class="balance-value"><span id="balance">0</span> ₽</span>
+    <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
+    <div id="main-interface" class="app-container" style="display:none;">
+        <h1 id="client-id">CLIENT</h1>
+        <p class="tagline">TELEBANK ASSET MANAGEMENT / 2026</p>
+
+        <div class="status-row">
+            <div class="label">CURRENT ASSETS</div>
+            <div class="data-value"><span id="cash">0</span> RUB</div>
+            
+            <div class="label">MINING POWER</div>
+            <div class="data-value">+<span id="power">100</span> / TAP</div>
         </div>
 
-        <div class="coin-container" id="coin-box">
-            <div class="coin" onclick="tap(event)">💰</div>
+        <div class="tap-zone" onclick="handleTap()">🪙</div>
+
+        <div class="upgrades">
+            <div class="label">AVAILABLE EXPANSION</div>
+            <button id="lvl1" class="action-btn" onclick="buyUpg(1, 500, 200)">UPGRADE v1.0 (500 RUB)</button>
+            <button id="lvl2" class="action-btn" style="display:none;" onclick="buyUpg(2, 1500, 300)">UPGRADE v2.0 (1500 RUB)</button>
+            <div id="max-status" style="display:none; text-align: center; font-size: 11px; color: #00ff00;">SYSTEM STATUS: OPTIMIZED</div>
         </div>
 
-        <div id="upgrades">
-            <p style="font-size: 0.8rem;">За тап: <span id="per-tap">100</span> ₽</p>
-            <button id="upg1" onclick="upgrade(1, 500, 200)">Улучшить (500 ₽)</button>
-            <button id="upg2" onclick="upgrade(2, 1500, 300)" style="display:none;">Макс. уровень (1500 ₽)</button>
-            <div id="max-lvl" style="display:none; color: #ffd700; font-weight: bold; margin-top: 10px;">TOP LEVEL 👑</div>
+        <div class="footer-info">
+            TELEBANK PREMIUM BUILDS. ALL RIGHTS RESERVED.<br>
+            2026 EDITION. ENCRYPTED CONNECTION.
         </div>
     </div>
 
     <script>
         let balance = 0;
-        let perTap = 100;
+        let powerPerClick = 100;
 
-        function register() {
-            const name = document.getElementById('username').value;
-            if (name) {
-                document.getElementById('reg-screen').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'block';
-                document.getElementById('welcome').innerText = "Клиент: " + name;
+        function initBank() {
+            const val = document.getElementById('user-input').value;
+            if (val) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-interface').style.display = 'block';
+                document.getElementById('client-id').innerText = val;
             }
         }
 
-        function tap(event) {
-            balance += perTap;
-            updateUI();
-
-            // Создаем вылетающий текст +100
-            const plus = document.createElement('div');
-            plus.innerText = `+${perTap}`;
-            plus.className = 'plus-one';
-            plus.style.left = `${event.clientX - 20}px`;
-            plus.style.top = `${event.clientY - 40}px`;
-            plus.style.position = 'fixed';
-            document.body.appendChild(plus);
-
-            setTimeout(() => plus.remove(), 800);
+        function handleTap() {
+            balance += powerPerClick;
+            refresh();
         }
 
-        function upgrade(lvl, cost, nextPower) {
-            if (balance >= cost) {
-                balance -= cost;
-                perTap = nextPower;
-                
-                if (lvl === 1) {
-                    document.getElementById('upg1').style.display = 'none';
-                    document.getElementById('upg2').style.display = 'block';
+        function buyUpg(level, price, newPower) {
+            if (balance >= price) {
+                balance -= price;
+                powerPerClick = newPower;
+                if (level === 1) {
+                    document.getElementById('lvl1').style.display = 'none';
+                    document.getElementById('lvl2').style.display = 'block';
                 } else {
-                    document.getElementById('upg2').style.display = 'none';
-                    document.getElementById('max-lvl').style.display = 'block';
+                    document.getElementById('lvl2').style.display = 'none';
+                    document.getElementById('max-status').style.display = 'block';
                 }
-                updateUI();
+                refresh();
             }
         }
 
-        function updateUI() {
-            document.getElementById('balance').innerText = balance.toLocaleString();
-            document.getElementById('per-tap').innerText = perTap;
+        function refresh() {
+            document.getElementById('cash').innerText = balance.toLocaleString();
+            document.getElementById('power').innerText = powerPerClick;
             
-            // Проверка доступности кнопок (чтобы они становились тусклыми, если денег мало)
-            const b1 = document.getElementById('upg1');
-            const b2 = document.getElementById('upg2');
-            if(b1) b1.disabled = balance < 500;
-            if(b2) b2.disabled = balance < 1500;
+            // Проверка кнопок
+            const btn1 = document.getElementById('lvl1');
+            const btn2 = document.getElementById('lvl2');
+            if(btn1) btn1.disabled = balance < 500;
+            if(btn2) btn2.disabled = balance < 1500;
         }
     </script>
 </body>
