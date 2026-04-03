@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeoBank Clicker | Evolution</title>
+    <title>NeoBank | Evolution</title>
     <style>
         :root {
             --primary: #00ff88;
             --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.7);
+            --card: rgba(30, 41, 59, 0.8);
         }
 
         body {
@@ -34,14 +34,14 @@
             width: 320px;
         }
 
-        h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--primary); }
+        h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--primary); text-transform: uppercase; }
 
         input {
             width: 90%;
             padding: 12px;
             border-radius: 12px;
-            border: none;
-            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.3);
             color: white;
             margin-bottom: 15px;
             outline: none;
@@ -52,28 +52,30 @@
             background: linear-gradient(135deg, #00ff88, #00bd65);
             color: #052e16;
             border: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
             width: 100%;
             margin-top: 10px;
+            text-transform: uppercase;
         }
 
-        button:hover:not(:disabled) { transform: translateY(-2px); }
-        button:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3); }
+        button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
 
         .rebirth-btn { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
 
         .stats-box {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.4);
             padding: 15px;
             border-radius: 16px;
             margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .balance-value { font-size: 1.8rem; font-weight: bold; color: var(--primary); display: block; }
+        .balance-value { font-size: 2rem; font-weight: bold; color: var(--primary); display: block; }
         
         .coin {
             width: 140px; height: 140px;
@@ -82,10 +84,10 @@
             display: flex; justify-content: center; align-items: center;
             font-size: 70px; margin: 20px auto;
             cursor: pointer; user-select: none;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-            transition: 0.05s;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+            transition: 0.1s;
         }
-        .coin:active { transform: scale(0.92); }
+        .coin:active { transform: scale(0.9); }
 
         .plus-one {
             position: absolute; color: var(--primary); font-weight: bold;
@@ -99,67 +101,74 @@
 </head>
 <body>
 
-    <!-- РЕГИСТРАЦИЯ -->
+    <!-- ЭКРАН РЕГИСТРАЦИИ -->
     <div id="reg-screen" class="container">
         <h2>NeoBank</h2>
-        <input type="text" id="username" placeholder="Ваше имя">
-        <button onclick="register()">ОТКРЫТЬ СЧЁТ</button>
+        <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 20px;">РЕГИСТРАЦИЯ СЧЕТА</p>
+        <input type="text" id="username" placeholder="ВВЕДИТЕ ИМЯ" autocomplete="off">
+        <button onclick="register()">СОЗДАТЬ АККАУНТ</button>
     </div>
 
-    <!-- ИГРА -->
+    <!-- ЭКРАН БАНКА -->
     <div id="game-screen" class="container" style="display:none;">
-        <div id="welcome" style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 10px;">ЛИЧНЫЙ КАБИНЕТ</div>
+        <div id="welcome-text" style="font-size: 0.7rem; opacity: 0.5; margin-bottom: 10px; letter-spacing: 1px;"></div>
         
         <div class="stats-box">
-            <span style="font-size: 0.7rem; opacity: 0.7;">БАЛАНС</span>
+            <span style="font-size: 0.7rem; opacity: 0.6;">АКТИВЫ</span>
             <span class="balance-value"><span id="balance">0</span> ₽</span>
-            <div id="mult-tag" style="color: #f093fb; font-size: 0.8rem; margin-top: 5px;">МНОЖИТЕЛЬ: x1</div>
+            <div id="mult-tag" style="color: #f093fb; font-size: 0.8rem; margin-top: 5px; font-weight: bold;"></div>
         </div>
 
         <div class="coin" onclick="tap(event)">💰</div>
 
         <div id="upgrades">
-            <p style="font-size: 0.8rem;">За тап: <span id="per-tap">100</span> ₽</p>
+            <p style="font-size: 0.8rem; margin-bottom: 15px;">ДОХОД: <span id="per-tap" style="color: var(--primary)">100</span> ₽/КЛИК</p>
             
-            <button id="u1" onclick="upgrade(1, 500)">УЛУЧШИТЬ ДО LVL 2 (500 ₽)</button>
-            <button id="u2" onclick="upgrade(2, 1500)" style="display:none;">УЛУЧШИТЬ ДО LVL 3 (1500 ₽)</button>
-            <button id="u3" onclick="upgrade(3, 5000)" style="display:none;">УЛУЧШИТЬ ДО LVL 4 (5000 ₽)</button>
-            <button id="u4" onclick="upgrade(4, 10000)" style="display:none;">УЛУЧШИТЬ ДО LVL 5 (10000 ₽)</button>
-            <button id="u5" onclick="upgrade(5, 50000)" style="display:none;">УЛУЧШИТЬ ДО LVL 6 (50000 ₽)</button>
+            <!-- Кнопки LVL -->
+            <button id="u1" onclick="upgrade(1, 500)">LEVEL 2 (500 ₽)</button>
+            <button id="u2" onclick="upgrade(2, 1500)" style="display:none;">LEVEL 3 (1500 ₽)</button>
+            <button id="u3" onclick="upgrade(3, 5000)" style="display:none;">LEVEL 4 (5000 ₽)</button>
+            <button id="u4" onclick="upgrade(4, 10000)" style="display:none;">LEVEL 5 (10000 ₽)</button>
+            <button id="u5" onclick="upgrade(5, 50000)" style="display:none;">LEVEL 6 (50000 ₽)</button>
             
-            <button id="rb1" class="rebirth-btn" onclick="rebirth(15000, 2)" style="display:none;">РЕБИРТ x2 (15000 ₽)</button>
-            <button id="rb2" class="rebirth-btn" onclick="rebirth(50000, 3)" style="display:none;">РЕБИРТ x3 (50000 ₽)</button>
+            <!-- Кнопки Rebirth -->
+            <button id="rb1" class="rebirth-btn" onclick="rebirth(15000, 2)" style="display:none;">REBIRTH x2 (15000 ₽)</button>
+            <button id="rb2" class="rebirth-btn" onclick="rebirth(50000, 3)" style="display:none;">REBIRTH x3 (50000 ₽)</button>
             
-            <div id="max-lvl" style="display:none; color: gold; font-weight: bold; margin-top: 10px;">MAX LEVEL REACHED 👑</div>
+            <div id="max-lvl" style="display:none; color: gold; font-weight: bold; margin-top: 15px;">MAX SYSTEM LEVEL 👑</div>
         </div>
     </div>
 
     <script>
+        // Инициализация данных
         let balance = 0;
         let currentLvl = 0;
         let multiplier = 1;
 
-        // Базовые значения силы клика
         const basePowers = [100, 200, 300, 400, 1000, 1500];
         const upgCosts = [500, 1500, 5000, 10000, 50000];
 
+        // Функция регистрации
         function register() {
-            const name = document.getElementById('username').value;
-            if (name.trim() !== "") {
+            const nameInput = document.getElementById('username');
+            const name = nameInput.value.trim();
+            
+            if (name !== "") {
                 document.getElementById('reg-screen').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'block';
-                document.getElementById('welcome').innerText = "КЛИЕНТ: " + name.toUpperCase();
+                document.getElementById('welcome-text').innerText = "КЛИЕНТ: " + name.toUpperCase();
                 updateUI();
             } else {
-                alert("Введите имя!");
+                alert("Пожалуйста, введите ваше имя.");
             }
         }
 
+        // Функция клика
         function tap(event) {
             let gain = basePowers[currentLvl] * multiplier;
             balance += gain;
             
-            // Анимация цифр
+            // Анимация вылетающей цифры
             const plus = document.createElement('div');
             plus.innerText = `+${gain}`;
             plus.className = 'plus-one';
@@ -172,14 +181,16 @@
             updateUI();
         }
 
-        function upgrade(lvl, cost) {
+        // Функция покупки уровня
+        function upgrade(nextLvl, cost) {
             if (balance >= cost) {
                 balance -= cost;
-                currentLvl = lvl;
+                currentLvl = nextLvl;
                 updateUI();
             }
         }
 
+        // Функция ребирта
         function rebirth(cost, newMult) {
             if (balance >= cost) {
                 balance = 0;
@@ -189,22 +200,25 @@
             }
         }
 
+        // Обновление интерфейса
         function updateUI() {
             document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
             document.getElementById('per-tap').innerText = (basePowers[currentLvl] * multiplier).toLocaleString();
             document.getElementById('mult-tag').innerText = `МНОЖИТЕЛЬ: x${multiplier}`;
 
-            // Показываем нужную кнопку уровня
+            // Показываем только текущую доступную кнопку улучшения
             for(let i=1; i<=5; i++) {
                 let btn = document.getElementById('u' + i);
-                btn.style.display = (currentLvl === i-1) ? 'block' : 'none';
-                if (currentLvl === i-1) btn.disabled = balance < upgCosts[i-1];
+                if (btn) {
+                    btn.style.display = (currentLvl === i-1) ? 'block' : 'none';
+                    btn.disabled = balance < upgCosts[i-1];
+                }
             }
 
-            // Максимальный уровень
+            // Текст при достижении макс уровня
             document.getElementById('max-lvl').style.display = (currentLvl === 5) ? 'block' : 'none';
 
-            // Логика кнопок ребирта
+            // Управление ребиртхами
             const rb1 = document.getElementById('rb1');
             const rb2 = document.getElementById('rb2');
 
