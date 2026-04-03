@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Winter Ultimate x400</title>
+    <title>TeleBank | Winter Ultimate Fixed</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; }
         body { 
@@ -13,19 +13,13 @@
             user-select: none; overflow: hidden; 
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-        .promo-top {
-            position: absolute; top: 20px; right: 20px;
-            background: #3b82f6; color: white; padding: 10px 18px;
-            border-radius: 10px; font-size: 14px; font-weight: bold;
-            cursor: pointer; z-index: 100; border: 1px solid rgba(255,255,255,0.2);
-        }
         .card { 
             background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
             padding: 30px; border-radius: 30px; text-align: center; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8); width: 340px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8); width: 350px; 
             border: 1px solid rgba(255,255,255,0.1); z-index: 10;
         }
-        .money-val { font-size: 2.4rem; font-weight: 900; color: var(--p); margin: 5px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        .money-val { font-size: 2.2rem; font-weight: 900; color: var(--p); margin: 10px 0; text-shadow: 0 0 20px rgba(0,255,136,0.4); }
         .coin-btn { 
             width: 140px; height: 140px; 
             background: radial-gradient(circle, #ffd700, #ff8c00); 
@@ -35,176 +29,147 @@
             transition: 0.1s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
-        .coin-btn:active { transform: scale(0.95); }
+        .coin-btn:active { transform: scale(0.92); }
         button.game-btn { 
-            width: 100%; padding: 16px; border-radius: 14px; border: none; 
-            margin-top: 10px; font-weight: bold; cursor: pointer; 
+            width: 100%; padding: 15px; border-radius: 12px; border: none; 
+            margin-top: 8px; font-weight: bold; cursor: pointer; 
             text-transform: uppercase; transition: 0.2s;
         }
         .u-btn { background: var(--p); color: #000; }
         .r-btn { background: var(--rb); color: white; }
-        button:disabled { opacity: 0.15; cursor: not-allowed; filter: grayscale(1); }
+        button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
         .plus { 
             position: absolute; color: var(--p); font-weight: bold; 
             animation: moveUp 0.8s forwards; pointer-events: none; 
-            font-size: 1.5rem; z-index: 150; text-shadow: 0 0 5px #000;
+            font-size: 1.4rem; z-index: 150; text-shadow: 0 0 5px #000;
         }
-        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-130px); opacity: 0; } }
+        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
     </style>
 </head>
 <body>
 
 <canvas id="snow-box"></canvas>
-<button class="promo-top" id="promo-btn">ПРОМОКОД 🎁</button>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px;">TELEBANK WINTER ULTIMATE</div>
-    <div class="money-val"><span id="balance">0</span> ₽</div>
+    <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK ULTIMATE v.FIX</div>
+    <div class="money-val" id="balance-display">0 ₽</div>
     <div id="mult-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     
     <div class="coin-btn" id="main-coin">🪙</div>
     
     <div id="shop">
-        <p style="font-size: 0.9rem;"><span id="tap-power-label">ДОХОД:</span> <span id="tap-power" style="color: var(--p)">100</span> ₽</p>
+        <p style="font-size: 0.9rem;"><span id="income-label">ДОХОД:</span> <span id="income-val" style="color: var(--p)">100</span> ₽</p>
         <div id="upgrade-area"></div>
         <div id="rebirth-area"></div>
-        <div id="max-info" style="display:none; color: gold; font-weight:bold; margin-top:15px;">SUPREME POWER REACHED 👑</div>
     </div>
 </div>
 
 <script>
-    // Форматирование больших чисел
-    function f(n) {
+    // 1. УМНОЕ ФОРМАТИРОВАНИЕ
+    function format(n) {
+        if (n >= 1e15) return (n / 1e15).toFixed(2) + " КВАНТ";
         if (n >= 1e12) return (n / 1e12).toFixed(2) + " ТРЛН";
         if (n >= 1e9) return (n / 1e9).toFixed(2) + " МЛРД";
         if (n >= 1e6) return (n / 1e6).toFixed(1) + " МЛН";
-        return n.toLocaleString();
+        return Math.floor(n).toLocaleString();
     }
 
-    // 1. ДАННЫЕ (Добавлен 11 лвл и Ребирх 2 трлн)
+    // 2. ДАННЫЕ (11 уровней, последний 250млрд дает 600млн/сек)
     const POWERS =; 
     const COSTS =; 
+
     const REBIRTHS = [
         { c: 15000, m: 2, n: "x2" },
-        { c: 100000, m: 5, n: "x5" },
         { c: 1000000, m: 10, n: "x10" },
-        { c: 50000000, m: 100, n: "ULTRA x100" },
-        { c: 250000000, m: 200, n: "MYTHIC x200" },
-        { c: 2000000000000, m: 400, n: "SUPREME x400" } // Новый за 2 трлн
+        { c: 100000000, m: 100, n: "x100" },
+        { c: 250000000000, m: 200, n: "x200" },
+        { c: 2000000000000, m: 400, n: "x400" }
     ];
 
-    let state = { b: 0, l: 0, m: 1, p: false };
-    const SAVE_KEY = 'telebank_v5_save';
+    let state = { b: 0, l: 0, m: 1 };
 
-    function loadGame() {
-        const saved = localStorage.getItem(SAVE_KEY);
-        if (saved) {
-            try { Object.assign(state, JSON.parse(saved)); } catch(e) {}
-        }
+    // Загрузка
+    const saved = localStorage.getItem('tb_final_fixed');
+    if (saved) state = Object.assign(state, JSON.parse(saved));
+
+    // 3. ЯДРО ДОХОДА
+    function getRawPower() {
+        return POWERS[state.l];
     }
-    function saveGame() { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
 
-    loadGame();
-
-    // 2. ПАССИВНЫЙ ДОХОД (Начиная с 10 уровня)
+    // Пассивный доход (начиная с 10 уровня и выше)
     setInterval(() => {
         if (state.l >= 9) {
-            // На 10 лвле: 2 млн, на 11 лвле: x300 от базы
-            let autoGain = (state.l === 9 ? 2000000 : 2000000 * 300) * state.m;
-            state.b += autoGain;
-            refresh();
+            state.b += getRawPower() * state.m;
+            updateUI();
         }
     }, 1000);
 
-    setInterval(saveGame, 5000);
-
-    // 3. ТАПЫ
-    const coin = document.getElementById('main-coin');
-    coin.onclick = function(e) {
-        let currentPower = POWERS[state.l];
-        // Если это 11 уровень, применяем доп. множитель x300
-        if (state.l === 10) currentPower = 2000000 * 300;
-        
-        let gain = currentPower * state.m;
+    // Клик
+    document.getElementById('main-coin').onclick = function(e) {
+        let gain = getRawPower() * state.m;
         state.b += gain;
         
         const anim = document.createElement('div');
         anim.className = 'plus';
-        anim.innerText = "+" + f(gain);
+        anim.innerText = "+" + format(gain);
         anim.style.left = e.clientX + "px";
         anim.style.top = e.clientY + "px";
         document.body.appendChild(anim);
         setTimeout(() => anim.remove(), 800);
         
-        refresh();
+        updateUI();
     };
 
     // 4. МАГАЗИН
-    window.buyUpgrade = function() {
+    window.buyLvl = function() {
         if (state.b >= COSTS[state.l]) {
             state.b -= COSTS[state.l];
             state.l++;
-            saveGame();
-            refresh();
+            save();
+            updateUI();
         }
     }
 
-    window.doRebirth = function(idx) {
+    window.buyRb = function(idx) {
         if (state.b >= REBIRTHS[idx].c) {
             state.b = 0; state.l = 0; state.m = REBIRTHS[idx].m;
-            saveGame();
-            refresh();
+            save();
+            updateUI();
         }
     }
 
-    document.getElementById('promo-btn').onclick = function() {
-        if (state.p) return alert("Использован!");
-        let code = prompt("Промокод:");
-        if (code && code.toUpperCase() === "РУБЦОВ") {
-            state.b += 1000000; state.p = true; // Даем 1 млн за масштаб
-            saveGame(); alert("УСПЕХ! +1,000,000 ₽"); refresh();
-        }
-    };
+    function save() { localStorage.setItem('tb_final_fixed', JSON.stringify(state)); }
 
-    // 5. ОБНОВЛЕНИЕ
-    function refresh() {
-        document.getElementById('balance').innerText = f(Math.floor(state.b));
+    // 5. ИНТЕРФЕЙС
+    function updateUI() {
+        document.getElementById('balance-display').innerText = format(state.b) + " ₽";
         document.getElementById('mult-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         
-        const pwr = document.getElementById('tap-power');
-        const lbl = document.getElementById('tap-power-label');
-        
-        let currentPower = POWERS[state.l];
-        if (state.l === 10) currentPower = 2000000 * 300;
+        const isAuto = state.l >= 9;
+        document.getElementById('income-label').innerText = isAuto ? "АВТО-ДОХОД:" : "ДОХОД:";
+        document.getElementById('income-val').innerText = format(getRawPower() * state.m) + (isAuto ? " /СЕК" : " /ТАП");
+        document.getElementById('income-val').style.color = isAuto ? "gold" : "var(--p)";
 
-        if (state.l < 9) {
-            pwr.innerText = f(currentPower * state.m) + " ₽/ТАП";
-            lbl.innerText = "ДОХОД:";
-            pwr.style.color = "var(--p)";
-        } else {
-            pwr.innerText = f(currentPower * state.m) + " ₽/СЕК";
-            pwr.style.color = "gold";
-            lbl.innerText = "АВТО-ДОХОД:";
-        }
-
-        if (state.p) document.getElementById('promo-btn').style.display = 'none';
-
+        // Кнопка улучшения
         const uArea = document.getElementById('upgrade-area');
         if (state.l < COSTS.length) {
-            uArea.innerHTML = `<button class="game-btn u-btn" onclick="buyUpgrade()">LVL ${state.l + 2} ЗА ${f(COSTS[state.l])} ₽</button>`;
+            uArea.innerHTML = `<button class="game-btn u-btn" onclick="buyLvl()">LVL ${state.l + 2}: ${format(COSTS[state.l])} ₽</button>`;
             uArea.querySelector('button').disabled = state.b < COSTS[state.l];
         } else {
-            uArea.innerHTML = "";
-            document.getElementById('max-info').style.display = 'block';
+            uArea.innerHTML = "<div style='color:gold; margin:10px 0; font-weight:bold;'>MAX LEVEL REACHED 👑</div>";
         }
 
+        // Кнопка ребирха
         const rArea = document.getElementById('rebirth-area');
-        const nextR = REBIRTHS.findIndex(r => r.m > state.m);
-        if (nextR !== -1) {
-            const rb = REBIRTHS[nextR];
-            rArea.innerHTML = `<button class="game-btn r-btn" onclick="doRebirth(${nextR})">REBIRTH ${rb.n} (${f(rb.c)} ₽)</button>`;
+        const nextRbIdx = REBIRTHS.findIndex(r => r.m > state.m);
+        if (nextRbIdx !== -1) {
+            const rb = REBIRTHS[nextRbIdx];
+            rArea.innerHTML = `<button class="game-btn r-btn" onclick="buyRb(${nextRbIdx})">REBIRTH ${rb.n} (${format(rb.c)} ₽)</button>`;
             rArea.querySelector('button').disabled = state.b < rb.c;
-        } else { rArea.innerHTML = ""; }
+        } else {
+            rArea.innerHTML = "";
+        }
     }
 
     // 6. СНЕГ
@@ -213,18 +178,18 @@
     let flakes = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
-    for(let i=0; i<80; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1, s: Math.random()*1+0.5});
+    for(let i=0; i<70; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2+1, s: Math.random()*1+0.3});
     function drawSnow() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = "white"; ctx.beginPath();
+        ctx.fillStyle = "rgba(255,255,255,0.8)"; ctx.beginPath();
         flakes.forEach(f => {
             ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
-            f.y += f.s; if(f.y > canvas.height) f.y = -10;
+            f.y += f.s; if(f.y > canvas.height) f.y = -5;
         });
         ctx.fill(); requestAnimationFrame(drawSnow);
     }
     drawSnow();
-    refresh();
+    updateUI();
 </script>
 </body>
 </html>
