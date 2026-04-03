@@ -1,70 +1,96 @@
-<canvas id="snow-layer"></canvas>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleBank Winter</title>
+    <style>
+        :root { --p: #00ff88; --bg: #020617; --rb: #f093fb; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; background: var(--bg); 
+            color: white; display: flex; justify-content: center; 
+            align-items: center; height: 100vh; margin: 0; 
+            user-select: none; overflow: hidden; 
+        }
+        #snow-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .card { 
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(15px);
+            padding: 25px; border-radius: 35px; text-align: center; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8); width: 320px; 
+            border: 1px solid rgba(255,255,255,0.1); z-index: 10; position: relative;
+        }
+        .bal-val { font-size: 2.4rem; font-weight: 900; color: var(--p); text-shadow: 0 0 20px rgba(0,255,136,0.4); }
+        .coin-btn { 
+            width: 130px; height: 130px; background: radial-gradient(circle, #ffd700, #ff8c00); 
+            border-radius: 50%; margin: 20px auto; cursor: pointer; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 60px; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); 
+            transition: 0.1s; border: 4px solid rgba(255,255,255,0.2);
+        }
+        .coin-btn:active { transform: scale(0.9); }
+        button { 
+            width: 100%; padding: 14px; border-radius: 12px; border: none; 
+            margin-top: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
+        }
+        .u-btn { background: var(--p); color: #052e16; }
+        .r-btn { background: var(--rb); color: white; }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        #promo-trigger {
+            position: fixed; top: 20px; right: 20px; background: rgba(59, 130, 246, 0.8);
+            padding: 10px 15px; border-radius: 12px; cursor: pointer; font-size: 0.8rem; z-index: 100;
+        }
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 200;
+        }
+        .modal-content { background: #1e293b; padding: 25px; border-radius: 20px; width: 260px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: none; text-align: center; box-sizing: border-box; }
+        
+        .plus-anim { position: absolute; color: var(--p); font-weight: bold; animation: fAnim 0.7s forwards; pointer-events: none; z-index: 100; }
+        @keyframes fAnim { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
+    </style>
+</head>
+<body>
 
-<!-- Кнопка промокода сверху справа -->
+<canvas id="snow-layer"></canvas>
 <div id="promo-trigger" onclick="togglePromo(true)">🎁 ПРОМОКОД</div>
 
-<!-- Модальное окно промокода -->
-<div id="promo-modal" class="modal-overlay">
+<div id="promo-modal" class="modal">
     <div class="modal-content">
-        <h3>АКТИВАЦИЯ</h3>
-        <input type="text" id="promo-input" placeholder="ВВЕДИТЕ КОД...">
-        <button class="u-btn" onclick="activatePromo()">ПОДТВЕРДИТЬ</button>
-        <button class="promo-btn" style="background: #475569" onclick="togglePromo(false)">ЗАКРЫТЬ</button>
+        <h3>ВВОД КОДА</h3>
+        <input type="text" id="promo-input" placeholder="ПРОМОКОД...">
+        <button class="u-btn" onclick="activatePromo()">ОК</button>
+        <button style="background:none; color:gray;" onclick="togglePromo(false)">ОТМЕНА</button>
     </div>
 </div>
 
 <div class="card">
-    <div style="font-size: 0.6rem; opacity: 0.5; letter-spacing: 2px;">TELEBANK WINTER V.FINAL</div>
-    
-    <div class="bal-box">
-        <div class="bal-label">БАЛАНС</div>
-        <div class="bal-val"><span id="display-balance">0</span> ₽</div>
-        <div id="display-mult" style="color: var(--rb); font-size: 0.8rem; font-weight: bold; margin-top: 5px;">МНОЖИТЕЛЬ: x1</div>
-    </div>
+    <div style="font-size: 0.6rem; opacity: 0.5; letter-spacing: 2px;">TELEBANK WINTER</div>
+    <div class="bal-val"><span id="display-balance">0</span> ₽</div>
+    <div id="display-mult" style="color: var(--rb); font-size: 0.8rem;">МНОЖИТЕЛЬ: x1</div>
     
     <div class="coin-btn" id="main-tap-area">🪙</div>
     
-    <div id="game-shop">
-        <p style="font-size: 0.8rem;">ДОХОД: <span id="display-tap" style="color: var(--p)">100</span> ₽/ТАП</p>
-        <div id="lvl-slot"></div>
-        <div id="rb-slot" style="margin-top: 10px;"></div>
-        <div id="max-info" style="display:none; color: gold; font-weight:bold; margin-top:10px;">ULTIMATE POWER 👑</div>
-    </div>
+    <p style="font-size: 0.8rem;">ДОХОД: <span id="display-tap" style="color: var(--p)">1</span> ₽/ТАП</p>
+    <div id="lvl-slot"></div>
+    <div id="rb-slot"></div>
 </div>
 
-<style>
-    /* Новые стили для промокода */
-    #promo-trigger {
-        position: fixed; top: 20px; right: 20px;
-        background: rgba(59, 130, 246, 0.8); padding: 10px 15px;
-        border-radius: 12px; cursor: pointer; font-weight: bold;
-        font-size: 0.8rem; z-index: 100; border: 1px solid rgba(255,255,255,0.2);
-    }
-    .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.8); display: none; 
-        justify-content: center; align-items: center; z-index: 200;
-    }
-    .modal-content {
-        background: #1e293b; padding: 30px; border-radius: 25px;
-        width: 280px; text-align: center; border: 1px solid var(--p);
-    }
-</style>
-
 <script>
-    // 1. ИСПРАВЛЕННЫЕ ДАННЫЕ
-    const POWERS = [100, 250, 600, 1500, 4000, 10000, 25000, 75000, 200000];
-    const COSTS = [1500, 5000, 15000, 50000, 150000, 500000, 2000000, 10000000];
+    // 1. ДАННЫЕ (Теперь всё заполнено)
+    const POWERS = [1, 5, 10, 25, 50, 100, 250, 500, 1000, 5000];
+    const COSTS = [100, 500, 2000, 7000, 15000, 40000, 100000, 250000, 1000000];
     const REBIRTHS = [
-        { c: 100000, m: 2, n: "x2" },
-        { c: 1000000, m: 5, n: "x5" },
-        { c: 50000000, m: 100, n: "x100" }
+        { c: 50000, m: 2, n: "x2" },
+        { c: 500000, m: 10, n: "x10" },
+        { c: 10000000, m: 100, n: "x100" }
     ];
 
     let game = { b: 0, l: 0, m: 1, p: false };
 
     // Загрузка
-    const saved = localStorage.getItem('tb_v2');
+    const saved = localStorage.getItem('tb_save_v3');
     if (saved) game = JSON.parse(saved);
 
     // Снег
@@ -73,14 +99,10 @@
     let flakes = [];
     function res() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = res; res();
-    for(let i=0; i<60; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2+1, s: Math.random()*1+0.5});
+    for(let i=0; i<50; i++) flakes.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*2+1, s:Math.random()*1+0.5});
     function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = "white"; ctx.beginPath();
-        flakes.forEach(f => {
-            ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
-            f.y += f.s; if(f.y > canvas.height) f.y = -5;
-        });
+        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle="white"; ctx.beginPath();
+        flakes.forEach(f => { ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); f.y+=f.s; if(f.y>canvas.height) f.y=-5; });
         ctx.fill(); requestAnimationFrame(draw);
     }
     draw();
@@ -89,18 +111,15 @@
     document.getElementById('main-tap-area').onclick = function(e) {
         let gain = POWERS[game.l] * game.m;
         game.b += gain;
-        
         const anim = document.createElement('div');
         anim.className = 'plus-anim';
-        anim.innerText = "+" + gain.toLocaleString();
-        anim.style.left = e.clientX + "px";
-        anim.style.top = e.clientY + "px";
+        anim.innerText = "+" + gain;
+        anim.style.left = e.clientX + "px"; anim.style.top = e.clientY + "px";
         document.body.appendChild(anim);
-        setTimeout(() => anim.remove(), 800);
+        setTimeout(() => anim.remove(), 700);
         refresh();
     };
 
-    // Магазин
     function buyLvl() {
         if (game.b >= COSTS[game.l]) {
             game.b -= COSTS[game.l];
@@ -111,30 +130,20 @@
 
     function buyRb(idx) {
         if (game.b >= REBIRTHS[idx].c) {
-            game.b = 0; game.l = 0;
-            game.m = REBIRTHS[idx].m;
+            game.b = 0; game.l = 0; game.m = REBIRTHS[idx].m;
             refresh();
         }
     }
 
-    // Промокоды
-    function togglePromo(show) {
-        document.getElementById('promo-modal').style.display = show ? 'flex' : 'none';
-    }
+    function togglePromo(s) { document.getElementById('promo-modal').style.display = s ? 'flex' : 'none'; }
 
     function activatePromo() {
         const val = document.getElementById('promo-input').value.trim().toUpperCase();
-        if (game.p) { alert("Вы уже использовали промокод!"); return; }
-        
+        if (game.p) { alert("Уже активирован!"); return; }
         if (val === "РУБЦОВ") {
-            game.b += 500000;
-            game.p = true;
-            alert("Бонус 500,000 ₽ начислен!");
-            togglePromo(false);
-            refresh();
-        } else {
-            alert("Неверный код!");
-        }
+            game.b += 100000; game.p = true;
+            alert("Бонус 100,000 ₽!"); togglePromo(false); refresh();
+        } else { alert("Код неверный"); }
     }
 
     function refresh() {
@@ -142,28 +151,22 @@
         document.getElementById('display-tap').innerText = (POWERS[game.l] * game.m).toLocaleString();
         document.getElementById('display-mult').innerText = "МНОЖИТЕЛЬ: x" + game.m;
 
-        // Кнопка улучшения
         const lSlot = document.getElementById('lvl-slot');
         if (game.l < COSTS.length) {
-            lSlot.innerHTML = `<button class="u-btn" id="btn-up" onclick="buyLvl()">LEVEL ${game.l + 2} (${COSTS[game.l].toLocaleString()} ₽)</button>`;
-            document.getElementById('btn-up').disabled = game.b < COSTS[game.l];
-            document.getElementById('max-info').style.display = 'none';
-        } else {
-            lSlot.innerHTML = "";
-            document.getElementById('max-info').style.display = 'block';
-        }
+            lSlot.innerHTML = `<button class="u-btn" id="bl" onclick="buyLvl()">LEVEL ${game.l+2} (${COSTS[game.l]} ₽)</button>`;
+            document.getElementById('bl').disabled = game.b < COSTS[game.l];
+        } else { lSlot.innerHTML = "<b style='color:gold'>MAX LEVEL</b>"; }
 
-        // Кнопка ребиртха
         const rSlot = document.getElementById('rb-slot');
-        const nextRbIdx = REBIRTHS.findIndex(r => r.m > game.m);
-        if (nextRbIdx !== -1) {
-            const rb = REBIRTHS[nextRbIdx];
-            rSlot.innerHTML = `<button class="r-btn" id="btn-rb" onclick="buyRb(${nextRbIdx})">REBIRTH ${rb.n} (${rb.c.toLocaleString()} ₽)</button>`;
-            document.getElementById('btn-rb').disabled = game.b < rb.c;
+        const nextRb = REBIRTHS.find(r => r.m > game.m);
+        if (nextRb) {
+            rSlot.innerHTML = `<button class="r-btn" id="br" onclick="buyRb(${REBIRTHS.indexOf(nextRb)})">REBIRTH ${nextRb.n} (${nextRb.c.toLocaleString()} ₽)</button>`;
+            document.getElementById('br').disabled = game.b < nextRb.c;
         } else { rSlot.innerHTML = ""; }
 
-        localStorage.setItem('tb_v2', JSON.stringify(game));
+        localStorage.setItem('tb_save_v3', JSON.stringify(game));
     }
-
     refresh();
 </script>
+</body>
+</html>
