@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 2 Admin PRO</title>
+    <title>TeleBank | Season 2 Admin Edition</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; --accent: #ff3e3e; --gold: #ffd700; }
         body { 
@@ -14,6 +14,7 @@
         }
         #snow-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
         
+        /* СЕЗОН 2 */
         .season-header {
             font-size: 2.5rem; font-weight: 900; color: #ffffff;
             text-transform: uppercase; letter-spacing: 8px; margin-bottom: 15px;
@@ -37,7 +38,7 @@
             transition: 0.05s; border: 5px solid rgba(255,255,255,0.2);
             position: relative; z-index: 20;
         }
-        .coin-btn:active { transform: scale(0.9); }
+        .coin-btn:active { transform: scale(0.92); }
         .coin-btn.wait { opacity: 0.7; pointer-events: none; }
 
         button.game-btn { 
@@ -50,7 +51,7 @@
         button:active { transform: translateY(2px); box-shadow: none; }
         button:disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(1); }
         
-        /* ADMIN DASHBOARD */
+        /* КРАСИВАЯ АДМИН ПАНЕЛЬ СЛЕВА */
         #admin-panel {
             display: none; position: fixed; top: 50%; left: 5%; transform: translateY(-50%);
             background: rgba(10, 15, 30, 0.98); backdrop-filter: blur(30px);
@@ -102,7 +103,7 @@
     <div id="m-info" style="color: var(--rb); font-size: 0.9rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
     <div class="coin-btn" id="coin">🪙</div>
     <div id="shop">
-        <p style="font-size: 0.85rem;">ДОХОД: <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
+        <p style="font-size: 0.85rem;"><span id="inc-lbl">ДОХОД:</span> <span id="inc-val" style="color: var(--p)">100</span> ₽</p>
         <div id="u-area"></div>
         <div id="r-area"></div>
     </div>
@@ -110,31 +111,36 @@
 
 <div class="admin-toggle" onclick="openAdmin()">⚙️</div>
 
-<!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
 <div id="admin-panel">
-    <div class="adm-header">DEVELOPER CONSOLE</div>
+    <div class="adm-header">ADMIN DASHBOARD</div>
     
     <div style="text-align: left;">
         <span class="adm-label">Установить баланс</span>
-        <input type="text" id="adm-money" class="admin-input" placeholder="Сумма...">
-        <button class="adm-set-btn" onclick="admSetMoney()">ПРИМЕНИТЬ</button>
+        <input type="text" id="adm-money" class="admin-input" placeholder="Напр. 1000000">
+        <button class="adm-set-btn" onclick="admSetMoney()">ПРИМЕНИТЬ БАЛАНС</button>
 
         <span class="adm-label">Установить уровень (1-13)</span>
-        <input type="number" id="adm-lvl" class="admin-input" placeholder="LVL">
-        <button class="adm-set-btn" onclick="admSetLvl()">УСТАНОВИТЬ</button>
+        <input type="number" id="adm-lvl" class="admin-input" placeholder="Уровень">
+        <button class="adm-set-btn" onclick="admSetLvl()">УСТАНОВИТЬ УРОВЕНЬ</button>
 
-        <span class="adm-label">Установить множитель</span>
-        <input type="text" id="adm-mult" class="admin-input" placeholder="X">
-        <button class="adm-set-btn" onclick="admSetMult()">УСТАНОВИТЬ</button>
+        <span class="adm-label">Установить множитель (x)</span>
+        <input type="text" id="adm-mult" class="admin-input" placeholder="Множитель">
+        <button class="adm-set-btn" onclick="admSetMult()">УСТАНОВИТЬ X</button>
     </div>
 
-    <button class="game-btn" style="background: #ef4444; color: white; margin-top: 25px;" onclick="closeAdmin()">ЗАКРЫТЬ</button>
+    <button class="game-btn" style="background: #ef4444; color: white; margin-top: 25px; height: 40px; padding: 0;" onclick="closeAdmin()">ЗАКРЫТЬ</button>
 </div>
 
 <script>
-    // 1. ДАННЫЕ
-    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
-    const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n];
+    // 1. КОНФИГУРАЦИЯ (BigInt)
+    const POWERS = [
+        100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 
+        1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n
+    ];
+    const COSTS = [
+        1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 
+        1000000000n, 10000000000n, 100000000000n, 15000000000000000n
+    ];
     const REBIRTHS = [
         { c: 1000000n, m: 10n, n: "x10" },
         { c: 1000000000n, m: 100n, n: "x100" },
@@ -144,8 +150,9 @@
 
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
-    const SAVE_KEY = 'tb_s2_pro_v_final';
+    const SAVE_KEY = 'telebank_s2_final_v_admin';
 
+    // 2. СОХРАНЕНИЕ / ЗАГРУЗКА
     function load() {
         const saved = localStorage.getItem(SAVE_KEY);
         if (saved) {
@@ -162,6 +169,7 @@
         }));
     }
 
+    // 3. ФОРМАТИРОВАНИЕ
     function f(n) {
         let num = BigInt(n);
         if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
@@ -173,9 +181,9 @@
 
     function getP() { return POWERS[state.l] * state.m; }
 
-    // --- АДМИН-ЛОГИКА (КЛЮЧ: u8aqAPMzXrUkSbD5) ---
+    // --- АДМИН-ЛОГИКА (НОВЫЙ КЛЮЧ) ---
     function openAdmin() {
-        if (prompt("ADMIN KEY:") === "u8aqAPMzXrUkSbD5") {
+        if (prompt("ENTER ADMIN KEY:") === "u8aqAPMzXrUkSbD5") {
             document.getElementById('admin-panel').style.display = 'block';
         }
     }
@@ -184,7 +192,10 @@
     function admSetMoney() {
         let v = document.getElementById('adm-money').value;
         if(v !== "") {
-            try { state.b = BigInt(v); refresh(); save(); } catch(e) { alert("Ошибка!"); }
+            try {
+                state.b = BigInt(v); refresh(); save();
+                alert("Баланс установлен!");
+            } catch(e) { alert("Ошибка числа!"); }
         }
     }
     
@@ -192,17 +203,21 @@
         let v = parseInt(document.getElementById('adm-lvl').value);
         if(v >= 1 && v <= POWERS.length) {
             state.l = v - 1; refresh(); save();
+            alert("Уровень изменен!");
         }
     }
     
     function admSetMult() {
         let v = document.getElementById('adm-mult').value;
         if(v !== "") {
-            try { state.m = BigInt(v); refresh(); save(); } catch(e) { alert("Ошибка!"); }
+            try {
+                state.m = BigInt(v); refresh(); save();
+                alert("Множитель изменен!");
+            } catch(e) { alert("Ошибка!"); }
         }
     }
 
-    // --- ГЕЙМПЛЕЙ ---
+    // --- ИГРОВОЙ ЦИКЛ ---
     setInterval(() => { if (state.l >= 9) { state.b += getP(); refresh(); save(); } }, 1000);
 
     document.getElementById('coin').onclick = (e) => {
@@ -211,6 +226,8 @@
         state.b += getP();
         const c = document.getElementById('coin');
         c.classList.add('wait');
+        
+        // Турбо-клик 0.1 сек
         setTimeout(() => { wait = false; c.classList.remove('wait'); }, 100);
 
         const anim = document.createElement('div');
@@ -234,7 +251,7 @@
         const uA = document.getElementById('u-area');
         if (state.l < COSTS.length) {
             uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>УЛУЧШИТЬ: ${f(COSTS[state.l])} ₽</button>`;
-        } else uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX LEVEL 👑</div>";
+        } else uA.innerHTML = "<div style='color:gold; font-weight:bold; margin-top:10px;'>MAX SEASON 2 LEVEL 👑</div>";
         
         const rA = document.getElementById('r-area');
         let next = REBIRTHS.findIndex(r => r.m > state.m);
@@ -243,6 +260,7 @@
         } else rA.innerHTML = "";
     }
 
+    // Снег
     const canvas = document.getElementById('snow-box'); const ctx = canvas.getContext('2d'); let flakes = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
