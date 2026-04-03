@@ -3,227 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Winter Ultimate</title>
+    <title>TeleBank | Fixed Edition</title>
     <style>
-        :root { --p: #00ff88; --bg: #020617; --rb: #f093fb; --blue: #3b82f6; }
-        
+        :root { --p: #00ff88; --bg: #020617; --rb: #f093fb; }
         body { 
-            font-family: 'Segoe UI', sans-serif; background: var(--bg); 
-            color: white; display: flex; justify-content: center; 
-            align-items: center; height: 100vh; margin: 0; 
-            user-select: none; overflow: hidden; 
+            font-family: sans-serif; background: var(--bg); color: white; 
+            display: flex; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; user-select: none; overflow: hidden; 
         }
-
         #snow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-
-        /* Кнопка промокода сверху справа */
-        .promo-trigger {
+        
+        /* Кнопка промокода в углу */
+        .promo-btn-top {
             position: absolute; top: 20px; right: 20px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 10px 15px; border-radius: 10px;
-            font-size: 12px; cursor: pointer; z-index: 100; backdrop-filter: blur(5px);
+            background: #3b82f6; color: white; padding: 10px 15px;
+            border-radius: 10px; font-size: 12px; font-weight: bold;
+            cursor: pointer; z-index: 100; border: none;
         }
-        .promo-trigger:hover { background: rgba(255,255,255,0.2); }
 
         .card { 
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
-            padding: 30px; border-radius: 35px; text-align: center; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8); width: 340px; 
-            border: 1px solid rgba(255,255,255,0.1); z-index: 10;
+            background: rgba(15, 23, 42, 0.9); padding: 30px; 
+            border-radius: 30px; text-align: center; width: 340px; 
+            border: 1px solid rgba(255,255,255,0.1); z-index: 10; position: relative;
         }
-
-        .bal-val { font-size: 2.5rem; font-weight: 900; color: var(--p); margin: 5px 0; text-shadow: 0 0 15px rgba(0,255,136,0.3); }
-
+        .bal { font-size: 2.5rem; font-weight: 900; color: var(--p); margin: 10px 0; }
+        
         .coin { 
-            width: 140px; height: 140px; 
-            background: radial-gradient(circle, #ffd700, #ff8c00); 
-            border-radius: 50%; margin: 25px auto; cursor: pointer; 
+            width: 140px; height: 140px; background: orange; 
+            border-radius: 50%; margin: 20px auto; cursor: pointer; 
             display: flex; justify-content: center; align-items: center; 
-            font-size: 70px; box-shadow: 0 0 35px rgba(255, 215, 0, 0.4); 
-            transition: 0.1s; border: 4px solid rgba(255,255,255,0.2);
-            position: relative; z-index: 50;
+            font-size: 70px; box-shadow: 0 0 30px rgba(255, 165, 0, 0.5); 
+            transition: 0.1s; position: relative; z-index: 50;
         }
         .coin:active { transform: scale(0.9); }
 
-        button { 
-            width: 100%; padding: 15px; border-radius: 14px; border: none; 
-            margin-top: 10px; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; transition: 0.2s;
+        .btn { 
+            width: 100%; padding: 15px; border-radius: 12px; border: none; 
+            margin-top: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
         }
-        .u-btn { background: var(--p); color: #052e16; }
-        .r-btn { background: var(--rb); color: white; }
-        button:disabled { opacity: 0.15; cursor: not-allowed; filter: grayscale(1); }
-
-        /* Модальное окно промокода */
-        #promo-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 200; justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: #1e293b; padding: 30px; border-radius: 20px; width: 280px; text-align: center;
-            border: 1px solid var(--blue);
-        }
-        input {
-            width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155;
-            background: #0f172a; color: white; text-align: center; margin-bottom: 15px; outline: none; box-sizing: border-box;
-        }
+        .u-btn { background: var(--p); color: #000; }
+        .r-btn { background: var(--rb); color: #fff; }
+        button:disabled { opacity: 0.1; cursor: not-allowed; }
 
         .plus { 
             position: absolute; color: var(--p); font-weight: bold; 
-            animation: f 0.8s forwards; pointer-events: none; 
-            font-size: 1.6rem; z-index: 150; text-shadow: 0 0 5px #000;
+            animation: f 0.8s forwards; pointer-events: none; z-index: 200;
         }
-        @keyframes f { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-130px); opacity: 0; } }
+        @keyframes f { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-120px); opacity: 0; } }
     </style>
 </head>
 <body>
 
 <canvas id="snow"></canvas>
-
-<div class="promo-trigger" id="open-promo">ПРОМОКОД 🎁</div>
+<button class="promo-btn-top" id="promo-trigger">ПРОМОКОД 🎁</button>
 
 <div class="card">
-    <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px;">TELEBANK WINTER V.7</div>
-    <div class="bal-val"><span id="b-val">0</span> ₽</div>
-    <div id="m-info" style="color: var(--rb); font-size: 0.8rem; font-weight: bold;">МНОЖИТЕЛЬ: x1</div>
+    <div style="font-size: 0.7rem; opacity: 0.5; letter-spacing: 2px;">TELEBANK ULTIMATE</div>
+    <div class="bal"><span id="balance-display">0</span> ₽</div>
+    <div id="mult-display" style="color: var(--rb); font-weight: bold; font-size: 0.9rem;">МНОЖИТЕЛЬ: x1</div>
     
-    <div class="coin" id="tap-coin">🪙</div>
+    <div class="coin" id="coin-element">🪙</div>
     
-    <div id="shop">
-        <p style="font-size: 0.85rem; margin-bottom: 15px;">ДОХОД: <span id="p-val" style="color: var(--p)">100</span> ₽/ТАП</p>
-        <div id="u-slot"></div>
-        <div id="r-slot"></div>
-        <div id="max-msg" style="display:none; color: gold; font-weight:bold; margin-top:10px;">ULTIMATE POWER 👑</div>
-    </div>
-</div>
-
-<!-- Модалка -->
-<div id="promo-modal">
-    <div class="modal-content">
-        <h3 style="margin-top:0">АКТИВАЦИЯ</h3>
-        <input type="text" id="promo-input" placeholder="ВВЕДИТЕ КОД">
-        <button class="u-btn" id="promo-submit">ОК</button>
-        <button style="background:none; color:gray; font-size:12px;" id="close-promo">Закрыть</button>
+    <div id="game-shop">
+        <p>ДОХОД: <span id="tap-display" style="color: var(--p)">100</span> ₽</p>
+        <div id="lvl-btn-slot"></div>
+        <div id="rb-btn-slot"></div>
+        <div id="max-info" style="display:none; color: gold; font-weight: bold;">MAX POWER 👑</div>
     </div>
 </div>
 
 <script>
     // 1. ДАННЫЕ
-    const POWERS =;
-    const COSTS =;
-    const RBS = [
-        { c: 15000, m: 2, n: "x2" },
-        { c: 50000, m: 3, n: "x3" },
-        { c: 200000, m: 4, n: "x4" },
-        { c: 10000000, m: 10, n: "MEGA x10" },
-        { c: 100000000, m: 100, n: "ULTRA x100" }
+    const tapPowers =;
+    const upgradeCosts =;
+    const rebirths = [
+        { cost: 15000, mult: 2, label: "x2" },
+        { cost: 50000, mult: 3, label: "x3" },
+        { cost: 200000, mult: 4, label: "x4" },
+        { cost: 10000000, mult: 10, label: "x10" },
+        { cost: 100000000, mult: 100, label: "ULTRA x100" }
     ];
 
-    let game = { b: 0, l: 0, m: 1, p: false };
+    let game = { balance: 0, level: 0, mult: 1, promoUsed: false };
 
     // Загрузка
-    const saved = localStorage.getItem('tb_winter_v7');
+    const saved = localStorage.getItem('telebank_final_v100');
     if (saved) game = JSON.parse(saved);
 
-    // 2. СИСТЕМА КЛИКА (ИСПРАВЛЕНО)
-    document.getElementById('tap-coin').onclick = function(e) {
-        let gain = POWERS[game.l] * game.m;
-        game.b += gain;
+    // 2. ТАПЫ (ПРЯМАЯ ПРИВЯЗКА)
+    const coin = document.getElementById('coin-element');
+    coin.onclick = function(e) {
+        let gain = tapPowers[game.level] * game.mult;
+        game.balance += gain;
         
+        // Анимация
         const p = document.createElement('div');
         p.className = 'plus'; p.innerText = "+" + gain.toLocaleString();
         p.style.left = e.clientX + "px"; p.style.top = e.clientY + "px";
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 800);
         
-        refresh();
+        update();
     };
 
-    // 3. МАГАЗИН
-    function buyU() {
-        if (game.b >= COSTS[game.l]) {
-            game.b -= COSTS[game.l]; game.l++; refresh();
+    // 3. ПРОМОКОД (ЧЕРЕЗ PROMPT - 100% РАБОТАЕТ)
+    document.getElementById('promo-trigger').onclick = function() {
+        if (game.promoUsed) {
+            alert("Промокод уже использован!");
+            return;
+        }
+        let code = prompt("Введите промокод:");
+        if (code && code.toUpperCase() === "РУБЦОВ") {
+            game.balance += 100000;
+            game.promoUsed = true;
+            alert("Успех! +100,000 ₽");
+            update();
+        } else if (code !== null) {
+            alert("Неверный код!");
+        }
+    };
+
+    // 4. МАГАЗИН
+    function buyLvl() {
+        let cost = upgradeCosts[game.level];
+        if (game.balance >= cost) {
+            game.balance -= cost;
+            game.level++;
+            update();
         }
     }
 
-    function buyR(idx) {
-        if (game.b >= RBS[idx].c) {
-            game.b = 0; game.l = 0; game.m = RBS[idx].m; refresh();
+    function buyRb(idx) {
+        let rb = rebirths[idx];
+        if (game.balance >= rb.cost) {
+            game.balance = 0; game.level = 0;
+            game.mult = rb.mult;
+            update();
         }
     }
 
-    // 4. ПРОМОКОД
-    const modal = document.getElementById('promo-modal');
-    document.getElementById('open-promo').onclick = () => {
-        if(game.p) alert("Вы уже использовали промокод!");
-        else modal.style.display = 'flex';
-    };
-    document.getElementById('close-promo').onclick = () => modal.style.display = 'none';
+    // 5. ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+    function update() {
+        document.getElementById('balance-display').innerText = Math.floor(game.balance).toLocaleString();
+        document.getElementById('tap-display').innerText = (tapPowers[game.level] * game.mult).toLocaleString();
+        document.getElementById('mult-display').innerText = "МНОЖИТЕЛЬ: x" + game.mult;
 
-    document.getElementById('promo-submit').onclick = () => {
-        const val = document.getElementById('promo-input').value.trim().toUpperCase();
-        if (val === "РУБЦОВ") {
-            game.b += 100000;
-            game.p = true;
-            modal.style.display = 'none';
-            document.getElementById('open-promo').style.display = 'none';
-            alert("УСПЕХ! +100,000 ₽");
-            refresh();
-        } else { alert("НЕВЕРНЫЙ КОД"); }
-    };
+        if (game.promoUsed) document.getElementById('promo-trigger').style.display = 'none';
 
-    // 5. ОБНОВЛЕНИЕ
-    function refresh() {
-        document.getElementById('b-val').innerText = Math.floor(game.b).toLocaleString();
-        document.getElementById('p-val').innerText = (POWERS[game.l] * game.m).toLocaleString();
-        document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ СИСТЕМЫ: x" + game.multName(); // Для красоты
-
-        if (game.p) document.getElementById('open-promo').style.display = 'none';
-
-        const uSlot = document.getElementById('u-slot');
-        if (game.l < 8) {
-            uSlot.innerHTML = `<button class="u-btn" onclick="buyU()">LEVEL ${game.l + 2} (${COSTS[game.l].toLocaleString()} ₽)</button>`;
-            uSlot.querySelector('button').disabled = game.b < COSTS[game.l];
-            document.getElementById('max-msg').style.display = 'none';
+        // Кнопка уровня
+        const lvlSlot = document.getElementById('lvl-btn-slot');
+        if (game.level < 8) {
+            lvlSlot.innerHTML = `<button class="btn u-btn" onclick="buyLvl()">LEVEL ${game.level + 2} (${upgradeCosts[game.level].toLocaleString()} ₽)</button>`;
+            lvlSlot.querySelector('button').disabled = game.balance < upgradeCosts[game.level];
         } else {
-            uSlot.innerHTML = ""; document.getElementById('max-msg').style.display = 'block';
+            lvlSlot.innerHTML = "";
+            document.getElementById('max-info').style.display = 'block';
         }
 
-        const rSlot = document.getElementById('r-slot');
-        const nextIdx = RBS.findIndex(r => r.m > game.m);
-        if (nextIdx !== -1) {
-            const rb = RBS[nextIdx];
-            rSlot.innerHTML = `<button class="r-btn" onclick="buyR(${nextIdx})">REBIRTH ${rb.n} (${rb.c.toLocaleString()} ₽)</button>`;
-            rSlot.querySelector('button').disabled = game.b < rb.c;
-        } else { rSlot.innerHTML = ""; }
+        // Кнопка ребирта
+        const rbSlot = document.getElementById('rb-btn-slot');
+        let nextRbIdx = rebirths.findIndex(r => r.mult > game.mult);
+        if (nextRbIdx !== -1) {
+            let rb = rebirths[nextRbIdx];
+            rbSlot.innerHTML = `<button class="btn r-btn" onclick="buyRb(${nextRbIdx})">REBIRTH ${rb.label} (${rb.cost.toLocaleString()} ₽)</button>`;
+            rbSlot.querySelector('button').disabled = game.balance < rb.cost;
+        } else {
+            rbSlot.innerHTML = "";
+        }
 
-        localStorage.setItem('tb_winter_v7', JSON.stringify(game));
+        localStorage.setItem('telebank_final_v100', JSON.stringify(game));
     }
 
-    // Хелпер для множителя
-    game.multName = function() {
-        return RBS.find(r => r.m === game.m)?.m || 1;
-    };
-
-    // 6. СНЕГ
+    // 6. СНЕГ (ЗАДНИЙ ПЛАН)
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
     let flakes = [];
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.onresize = resize; resize();
-    for(let i=0; i<80; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1, s: Math.random()*1+0.5});
-    function drawSnow() {
+    function res() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = res; res();
+    for(let i=0; i<70; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1, s: Math.random()*1+0.5});
+    function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = "white"; ctx.beginPath();
         flakes.forEach(f => {
             ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
             f.y += f.s; if(f.y > canvas.height) f.y = -10;
         });
-        ctx.fill(); requestAnimationFrame(drawSnow);
+        ctx.fill(); requestAnimationFrame(draw);
     }
-    drawSnow();
+    draw();
 
-    refresh();
+    update();
 </script>
 </body>
 </html>
