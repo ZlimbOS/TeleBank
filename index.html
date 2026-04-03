@@ -3,115 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Rebirth Edition</title>
+    <title>TeleBank | Premium Systems</title>
     <style>
-        :root { --bg: #000; --accent: #fff; --gray: #444; }
-        body { background: var(--bg); color: var(--accent); font-family: sans-serif; text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { width: 380px; padding: 40px; border: 1px solid #111; }
-        h1 { font-size: 24px; margin: 0; }
-        .tag { color: var(--gray); font-size: 10px; margin-bottom: 30px; }
-        input { width: 100%; background: none; border: 1px solid var(--gray); padding: 15px; color: #fff; margin-bottom: 20px; box-sizing: border-box; outline: none; }
-        .btn { background: var(--accent); color: #000; border: none; padding: 15px; font-weight: 900; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
+        :root {
+            --bg: #000000;
+            --accent: #ffffff;
+            --gray: #888888;
+            --dark-border: #1a1a1a;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--accent);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .container { width: 380px; padding: 40px; border: 1px solid var(--dark-border); }
+
+        h1 { font-size: 26px; font-weight: 900; margin: 0; letter-spacing: 4px; }
+        .tagline { color: var(--gray); font-size: 10px; margin-bottom: 40px; }
+
+        input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--dark-border);
+            padding: 15px;
+            color: white;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 14px;
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
         .btn:hover { opacity: 0.8; }
-        .btn:disabled { background: #222; color: #444; }
-        .rebirth-btn { background: #ffd700; color: #000; margin-top: 20px; }
-        .stats { border-top: 1px solid #111; margin-top: 30px; padding-top: 20px; }
-        .label { color: var(--gray); font-size: 9px; }
-        .val { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
-        .tap-area { height: 120px; border: 1px solid #111; margin: 20px 0; display: flex; justify-content: center; align-items: center; font-size: 40px; cursor: pointer; user-select: none; }
-        .tap-area:active { background: #050505; }
+        .btn:disabled { background: #222; color: #555; cursor: not-allowed; }
+
+        /* Кнопка Ребирта выделяется */
+        .rebirth-btn {
+            background: #fff;
+            border: 1px solid #fff;
+            margin-top: 30px;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        }
+
+        .stats-box { border-top: 1px solid var(--dark-border); margin-top: 30px; padding-top: 20px; }
+        .label { color: var(--gray); font-size: 9px; margin-bottom: 5px; }
+        .value { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+
+        .tap-zone {
+            margin: 30px 0;
+            height: 120px;
+            border: 1px solid var(--dark-border);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 45px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .tap-zone:active { background: #0a0a0a; transform: scale(0.98); }
+
+        .footer { margin-top: 50px; color: #333; font-size: 9px; }
     </style>
 </head>
 <body>
 
     <!-- ВХОД -->
-    <div id="scr-reg" class="container">
+    <div id="reg-screen" class="container">
         <h1>TELEBANK</h1>
-        <p class="tag">SECURE ACCESS</p>
-        <input type="text" id="nick" placeholder="CLIENT NAME">
-        <button class="btn" onclick="start()">INITIATE</button>
+        <p class="tagline">ONLY POWER. 2026 EDITION</p>
+        <input type="text" id="username" placeholder="ENTER CLIENT NAME">
+        <button class="btn" onclick="init()">OPEN ACCOUNT</button>
     </div>
 
     <!-- ИНТЕРФЕЙС -->
-    <div id="scr-main" class="container" style="display:none;">
-        <h1 id="user-title">CLIENT</h1>
-        <p class="tag">REBIRTHS: <span id="reb-count">0</span> | v.2026</p>
+    <div id="main-screen" class="container" style="display:none;">
+        <h1 id="user-display">CLIENT</h1>
+        <p class="tagline">REBIRTHS: <span id="reb-val">0</span> / SYSTEM ONLINE</p>
 
-        <div class="stats">
-            <div class="label">ASSETS</div>
-            <div class="val"><span id="bal">0</span> RUB</div>
-            <div class="label">POWER</div>
-            <div class="val">+<span id="pwr">100</span> / TAP</div>
+        <div class="stats-box">
+            <div class="label">CURRENT ASSETS</div>
+            <div class="value"><span id="balance">0</span> RUB</div>
+            
+            <div class="label">POWER PER TAP</div>
+            <div class="value">+<span id="pwr">100</span></div>
         </div>
 
-        <div class="tap-area" onclick="doTap()">🪙</div>
+        <div class="tap-zone" onclick="tap()">💵</div>
 
-        <div id="upg-list">
-            <button id="u1" class="btn" onclick="buy(1, 500, 200)">LVL 2 (500 RUB)</button>
-            <button id="u2" class="btn" style="display:none" onclick="buy(2, 1500, 300)">LVL 3 (1500 RUB)</button>
-            <button id="u3" class="btn" style="display:none" onclick="buy(3, 5000, 400)">LVL 4 (5000 RUB)</button>
-            <div id="max" style="display:none; text-align:center; font-size:10px; color:gold; margin:10px 0;">SYSTEM MAXED</div>
+        <div id="shop">
+            <div class="label">EXPANSION MODULES</div>
+            <button id="u1" class="btn" onclick="buy(1, 500)">LVL 2: 500 RUB</button>
+            <button id="u2" class="btn" style="display:none" onclick="buy(2, 1500)">LVL 3: 1500 RUB</button>
+            <button id="u3" class="btn" style="display:none" onclick="buy(3, 5000)">LVL 4: 5000 RUB</button>
+            <div id="max-msg" style="display:none; text-align:center; font-size:10px; color:var(--gray); margin:15px 0;">MAX CONFIGURATION REACHED</div>
         </div>
 
-        <button id="reb-btn" class="btn rebirth-btn" style="display:none" onclick="doRebirth()">REBIRTH (15000 RUB)</button>
+        <button id="reb-btn" class="btn rebirth-btn" style="display:none" onclick="rebirth()">INITIATE REBIRTH (15000 RUB)</button>
 
-        <div class="tag" style="margin-top:40px">TELEBANK ALL RIGHTS RESERVED</div>
+        <div class="footer">
+            TELEBANK PREMIUM BUILDS. ALL RIGHTS RESERVED.<br>
+            STAY POWERFUL.
+        </div>
     </div>
 
     <script>
-        let balance = 0, level = 0, rebirths = 0;
-        const basePowers = [100, 200, 300, 400];
+        let balance = 0;
+        let level = 0;
+        let rebirths = 0;
+        
+        // Базовые значения силы тапа (умножаются на ребирт)
+        const powers = [100, 200, 300, 400];
 
-        function start() {
-            const n = document.getElementById('nick').value;
-            if(n) {
-                document.getElementById('scr-reg').style.display='none';
-                document.getElementById('scr-main').style.display='block';
-                document.getElementById('user-title').innerText = n;
+        function init() {
+            const name = document.getElementById('username').value;
+            if(name) {
+                document.getElementById('reg-screen').style.display = 'none';
+                document.getElementById('main-screen').style.display = 'block';
+                document.getElementById('user-display').innerText = name;
                 update();
             }
         }
 
-        function doTap() {
-            balance += basePowers[level] * (rebirths + 1);
+        function tap() {
+            // Множитель: 1 ребирт делает 1 лвл = 200, 4 лвл = 800 и т.д.
+            balance += powers[level] * (rebirths + 1);
             update();
         }
 
-        function buy(l, price, p) {
+        function buy(newLevel, price) {
             if(balance >= price) {
                 balance -= price;
-                level = l;
+                level = newLevel;
                 update();
             }
         }
 
-        function doRebirth() {
+        function rebirth() {
             if(balance >= 15000) {
-                balance = 0; level = 0; rebirths++;
+                balance = 0;
+                level = 0;
+                rebirths++;
                 update();
             }
         }
 
         function update() {
-            let mult = rebirths + 1;
-            document.getElementById('bal').innerText = Math.floor(balance).toLocaleString();
-            document.getElementById('pwr').innerText = basePowers[level] * mult;
-            document.getElementById('reb-count').innerText = rebirths;
+            const mult = rebirths + 1;
+            document.getElementById('balance').innerText = Math.floor(balance).toLocaleString();
+            document.getElementById('pwr').innerText = powers[level] * mult;
+            document.getElementById('reb-val').innerText = rebirths;
 
-            // Кнопки уровней
+            // Управление кнопками уровней
             document.getElementById('u1').style.display = level === 0 ? 'block' : 'none';
             document.getElementById('u2').style.display = level === 1 ? 'block' : 'none';
             document.getElementById('u3').style.display = level === 2 ? 'block' : 'none';
-            document.getElementById('max').style.display = level === 3 ? 'block' : 'none';
+            document.getElementById('max-msg').style.display = level === 3 ? 'block' : 'none';
 
-            // Доступность покупки
+            // Проверка возможности покупки
             document.getElementById('u1').disabled = balance < 500;
             document.getElementById('u2').disabled = balance < 1500;
             document.getElementById('u3').disabled = balance < 5000;
 
-            // Кнопка ребирта
+            // Кнопка ребирта (показывается если баланс > 10к, активна на 15к)
             const rb = document.getElementById('reb-btn');
-            rb.style.display = balance >= 10000 || rebirths > 0 ? 'block' : 'none';
+            rb.style.display = (balance >= 10000 || rebirths > 0) ? 'block' : 'none';
             rb.disabled = balance < 15000;
         }
     </script>
