@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeleBank | Season 2 Ultra Save</title>
+    <title>TeleBank | Season 3</title>
     <style>
         :root { --p: #00ff88; --bg: #030712; --rb: #f093fb; --accent: #ff3e3e; --gold: #ffd700; }
         body { 
@@ -76,7 +76,7 @@
 <body>
 
 <canvas id="snow-box"></canvas>
-<div class="season-header">СЕЗОН 2</div>
+<div class="season-header">СЕЗОН 3</div>
 
 <div class="card">
     <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 2px;">TELEBANK ULTIMATE</div>
@@ -111,9 +111,24 @@
 </div>
 
 <script>
-    const POWERS = [100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 600000000n, 2000000000n, 2000000000n * 1000n];
-    const COSTS = [1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 10000000000n, 100000000000n, 15000000000000000n];
-    const REBIRTHS = [{ c: 1000000n, m: 10n, n: "x10" }, { c: 1000000000n, m: 100n, n: "x100" }, { c: 2000000000000n, m: 400n, n: "x400" }, { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" }];
+     const POWERS = [
+        100n, 200n, 400n, 1000n, 5000n, 20000n, 100000n, 500000n, 1000000n, 2000000n, 
+        600000000n, 2000000000n, 2000000000n * 1000n,
+        10000000000000n, 500000000000000n // НОВЫЕ С3
+    ];
+    const COSTS = [
+        1000n, 5000n, 20000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n, 
+        10000000000n, 100000000000n, 15000000000000000n,
+        100000000000000000n, 250000000000000000n // НОВЫЕ С3
+    ];
+    const REBIRTHS = [
+        { c: 1000000n, m: 10n, n: "x10" }, 
+        { c: 1000000000n, m: 100n, n: "x100" }, 
+        { c: 2000000000000n, m: 400n, n: "x400" }, 
+        { c: 2000000000000000n, m: 5000n, n: "OMEGA x5000" },
+        { c: 500000000000000000n, m: 20000n, n: "MODERN x20k" }, // НОВЫЙ С3
+        { c: 100000000000000000000n, m: 100000n, n: "GALAXY x100k" } // НОВЫЙ С3
+    ];
 
     let state = { b: 0n, l: 0, m: 1n };
     let wait = false;
@@ -140,17 +155,18 @@
             m: state.m.toString()
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    }
+ 
 
+    
     // Авто-сохранение каждые 3 секунды
     setInterval(save, 3000);
 
     function f(n) {
         let num = BigInt(n);
-        if (num >= 1e15) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
-        if (num >= 1e12) return (Number(num / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
-        if (num >= 1e9) return (Number(num / 1000000n) / 1000).toFixed(2) + " МЛРД";
-        if (num >= 1e6) return (Number(num / 1000n) / 1000).toFixed(1) + " МЛН";
+        if (num >= 1000000000000000n) return (Number(num / 1000000000000n) / 1000).toFixed(2) + " КВАДР";
+        if (num >= 1000000000000n) return (Number(num / 1000000000n) / 1000).toFixed(2) + " ТРЛН";
+        if (num >= 1000000000n) return (Number(num / 1000000n) / 1000).toFixed(2) + " МЛРД";
+        if (num >= 1000000n) return (Number(num / 1000n) / 1000).toFixed(1) + " МЛН";
         return num.toLocaleString();
     }
 
