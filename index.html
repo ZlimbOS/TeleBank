@@ -188,7 +188,7 @@
         document.getElementById('bal').innerText = f(state.b) + " ₽";
         document.getElementById('m-info').innerText = "МНОЖИТЕЛЬ: x" + state.m;
         let isA = state.l >= 9;
-        document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /ТАП");
+        document.getElementById('inc-val').innerText = f(getP()) + (isA ? " /СЕК" : " /КЛИК");
         const uA = document.getElementById('u-area');
         if (state.l < COSTS.length) uA.innerHTML = `<button class="game-btn u-btn" onclick="buyL()" ${state.b < COSTS[state.l] ? 'disabled' : ''}>УЛУЧШИТЬ: ${f(COSTS[state.l])} ₽</button>`;
         else uA.innerHTML = "<div style='color:gold; font-weight:bold;'>MAX LEVEL 👑</div>";
